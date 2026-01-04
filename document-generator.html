@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Document Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+
+        const Icon = ({ d, size = 20 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d={d} />
+            </svg>
+        );
+
+        const App = () => {
+            const [view, setView] = useState('home');
+            const [template, setTemplate] = useState(null);
+            const [data, setData] = useState({});
+
+            const templates = [
+                {
+                    id: 'resume',
+                    name: 'Professional Resume',
+                    icon: '📄',
+                    desc: 'Create a professional resume',
+                    fields: [
+                        { name: 'fullName', label: 'Full Name', type: 'text', req: true },
+                        { name: 'email', label: 'Email', type: 'email', req: true },
+                        { name: 'phone', label: 'Phone', type: 'tel', req: true },
+                        { name: 'address', label: 'Address', type: 'text' },
+                        { name: 'summary', label: 'Summary', type: 'textarea', req: true },
+                        { name: 'experience', label: 'Work Experience', type: 'list', req: true,
+                            sub: [
+                                { name: 'jobTitle', label: 'Job Title' },
+                                { name: 'company', label: 'Company' },
+                                { name: 'duration', label: 'Duration' },
+                                { name: 'description', label: 'Description', type: 'textarea' }
+                            ]
+                        },
+                        { name: 'education', label: 'Education', type: 'list', req: true,
+                            sub: [
+                                { name: 'degree', label: 'Degree' },
+                                { name: 'institution', label: 'Institution' },
+                                { name: 'year', label: 'Year' }
+                            ]
+                        },
+                        { name: 'skills', label: 'Skills (comma-separated)', type: 'text', req: true }
+                    ]
+                },
+                {
+                    id: 'invoice',
+                    name: 'Business Invoice',
+                    icon: '💰',
+                    desc: 'Generate invoices for clients',
+                    fields: [
+                        { name: 'invoiceNumber', label: 'Invoice #', type: 'text', req: true },
+                        { name: 'date', label: 'Date', type: 'date', req: true },
+                        { name: 'dueDate', label: 'Due Date', type: 'date', req: true },
+                        { name: 'fromName', label: 'Your Business', type: 'text', req: true },
+                        { name: 'fromAddress', label: 'Your Address', type: 'textarea', req: true },
+                        { name: 'toName', label: 'Client Name', type: 'text', req: true },
+                        { name: 'toAddress', label: 'Client Address', type: 'textarea', req: true },
+                        { name: 'items', label: 'Items', type: 'list', req: true,
+                            sub: [
+                                { name: 'description', label: 'Description' },
+                                { name: 'quantity', label: 'Qty', type: 'number' },
+                                { name: 'rate', label: 'Rate', type: 'number' }
+                            ]
+                        },
+                        { name: 'notes', label: 'Notes', type: 'textarea' }
+                    ]
+                },
+                {
+                    id: 'letter',
+                    name: 'Formal Letter',
+                    icon: '✉️',
+                    desc: 'Create formal letters',
+                    fields: [
+                        { name: 'date', label: 'Date', type: 'date', req: true },
+                        { name: 'senderName', label: 'Your Name', type: 'text', req: true },
+                        { name: 'senderAddress', label: 'Your Address', type: 'textarea', req: true },
+                        { name: 'recipientName', label: 'Recipient', type: 'text', req: true },
+                        { name: 'recipientAddress', label: 'Recipient Address', type: 'textarea', req: true },
+                        { name: 'subject', label: 'Subject', type: 'text', req: true },
+                        { name: 'body', label: 'Body', type: 'textarea', req: true },
+                        { name: 'closing', label: 'Closing', type: 'text', req: true }
+                    ]
+                },
+                {
+                    id: 'certificate',
+                    name: 'Certificate',
+                    icon: '🏆',
+                    desc: 'Create achievement certificates',
+                    fields: [
+                        { name: 'recipientName', label: 'Recipient', type: 'text', req: true },
+                        { name: 'achievement', label: 'Achievement', type: 'text', req: true },
+                        { name: 'date', label: 'Date', type: 'date', req: true },
+                        { name: 'organization', label: 'Organization', type: 'text', req: true },
+                        { name: 'signerName', label: 'Signer', type: 'text', req: true },
+                        { name: 'signerTitle', label: 'Title', type: 'text', req: true }
+                    ]
+                }
+            ];
+
+            const selectTemplate = (t) => {
+                setTemplate(t);
+                const init = {};
+                t.fields.forEach(f => {
+                    init[f.name] = f.type === 'list' ? [{}] : '';
+                });
+                setData(init);
+                setView('editor');
+            };
+
+            const updateData = (k, v) => setData(p => ({ ...p, [k]: v }));
+            
+            const addListItem = (k) => setData(p => ({ ...p, [k]: [...(p[k] || []), {}] }));
+            
+            const removeListItem = (k, i) => setData(p => ({ ...p, [k]: p[k].filter((_, idx) => idx !== i) }));
+            
+            const updateListItem = (k, i, sk, v) => setData(p => ({
+                ...p,
+                [k]: p[k].map((item, idx) => idx === i ? { ...item, [sk]: v } : item)
+            }));
+
+            const generatePDF = () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                let y = 20;
+                const w = doc.internal.pageSize.getWidth();
+                const m = 20;
+                const mw = w - 2 * m;
+
+                if (template.id === 'resume') {
+                    doc.setFontSize(24);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(data.fullName || '', w / 2, y, { align: 'center' });
+                    y += 10;
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(`${data.email || ''} | ${data.phone || ''} | ${data.address || ''}`, w / 2, y, { align: 'center' });
+                    y += 15;
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('PROFESSIONAL SUMMARY', m, y);
+                    y += 7;
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    const sum = doc.splitTextToSize(data.summary || '', mw);
+                    doc.text(sum, m, y);
+                    y += sum.length * 5 + 10;
+
+                    if (data.experience?.length) {
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('WORK EXPERIENCE', m, y);
+                        y += 7;
+                        data.experience.forEach(e => {
+                            if (y > 270) { doc.addPage(); y = 20; }
+                            doc.setFontSize(11);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(e.jobTitle || '', m, y);
+                            doc.setFont(undefined, 'normal');
+                            doc.text(e.duration || '', w - m, y, { align: 'right' });
+                            y += 6;
+                            doc.setFontSize(10);
+                            doc.setFont(undefined, 'italic');
+                            doc.text(e.company || '', m, y);
+                            y += 6;
+                            doc.setFont(undefined, 'normal');
+                            const d = doc.splitTextToSize(e.description || '', mw);
+                            doc.text(d, m, y);
+                            y += d.length * 5 + 8;
+                        });
+                    }
+
+                    if (data.education?.length) {
+                        if (y > 250) { doc.addPage(); y = 20; }
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('EDUCATION', m, y);
+                        y += 7;
+                        data.education.forEach(e => {
+                            doc.setFontSize(11);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(e.degree || '', m, y);
+                            doc.setFont(undefined, 'normal');
+                            doc.text(e.year || '', w - m, y, { align: 'right' });
+                            y += 6;
+                            doc.setFontSize(10);
+                            doc.text(e.institution || '', m, y);
+                            y += 8;
+                        });
+                    }
+
+                    if (data.skills) {
+                        if (y > 250) { doc.addPage(); y = 20; }
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('SKILLS', m, y);
+                        y += 7;
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'normal');
+                        const sk = doc.splitTextToSize(data.skills, mw);
+                        doc.text(sk, m, y);
+                    }
+                } else if (template.id === 'invoice') {
+                    doc.setFontSize(24);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('INVOICE', m, y);
+                    y += 15;
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(`Invoice #: ${data.invoiceNumber || ''}`, m, y);
+                    y += 6;
+                    doc.text(`Date: ${data.date || ''}`, m, y);
+                    y += 6;
+                    doc.text(`Due Date: ${data.dueDate || ''}`, m, y);
+                    y += 15;
+                    doc.setFont(undefined, 'bold');
+                    doc.text('FROM:', m, y);
+                    y += 6;
+                    doc.setFont(undefined, 'normal');
+                    doc.text(data.fromName || '', m, y);
+                    y += 6;
+                    const fa = doc.splitTextToSize(data.fromAddress || '', 80);
+                    doc.text(fa, m, y);
+                    
+                    const ty = 55;
+                    doc.setFont(undefined, 'bold');
+                    doc.text('TO:', w - m - 80, ty);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(data.toName || '', w - m - 80, ty + 6);
+                    const ta = doc.splitTextToSize(data.toAddress || '', 80);
+                    doc.text(ta, w - m - 80, ty + 12);
+                    
+                    y += fa.length * 5 + 15;
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(m, y, mw, 8, 'F');
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Description', m + 2, y + 5);
+                    doc.text('Qty', w - 90, y + 5);
+                    doc.text('Rate', w - 60, y + 5);
+                    doc.text('Amount', w - m - 2, y + 5, { align: 'right' });
+                    y += 12;
+                    
+                    doc.setFont(undefined, 'normal');
+                    let total = 0;
+                    if (data.items) {
+                        data.items.forEach(it => {
+                            const q = parseFloat(it.quantity) || 0;
+                            const r = parseFloat(it.rate) || 0;
+                            const amt = q * r;
+                            total += amt;
+                            doc.text(it.description || '', m + 2, y);
+                            doc.text(q.toString(), w - 90, y);
+                            doc.text(`$${r.toFixed(2)}`, w - 60, y);
+                            doc.text(`$${amt.toFixed(2)}`, w - m - 2, y, { align: 'right' });
+                            y += 8;
+                        });
+                    }
+                    
+                    y += 5;
+                    doc.setDrawColor(200, 200, 200);
+                    doc.line(w - 80, y, w - m, y);
+                    y += 8;
+                    doc.setFont(undefined, 'bold');
+                    doc.setFontSize(12);
+                    doc.text('TOTAL:', w - 80, y);
+                    doc.text(`$${total.toFixed(2)}`, w - m - 2, y, { align: 'right' });
+                    
+                    if (data.notes) {
+                        y += 20;
+                        doc.setFontSize(10);
+                        doc.text('Notes:', m, y);
+                        y += 6;
+                        doc.setFont(undefined, 'normal');
+                        const n = doc.splitTextToSize(data.notes, mw);
+                        doc.text(n, m, y);
+                    }
+                } else if (template.id === 'letter') {
+                    doc.setFontSize(10);
+                    doc.text(data.senderName || '', m, y);
+                    y += 5;
+                    const sa = doc.splitTextToSize(data.senderAddress || '', mw);
+                    doc.text(sa, m, y);
+                    y += sa.length * 5 + 10;
+                    doc.text(data.date || '', m, y);
+                    y += 15;
+                    doc.text(data.recipientName || '', m, y);
+                    y += 5;
+                    const ra = doc.splitTextToSize(data.recipientAddress || '', mw);
+                    doc.text(ra, m, y);
+                    y += ra.length * 5 + 15;
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`Re: ${data.subject || ''}`, m, y);
+                    y += 10;
+                    doc.setFont(undefined, 'normal');
+                    doc.text('Dear ' + (data.recipientName || '') + ',', m, y);
+                    y += 10;
+                    const b = doc.splitTextToSize(data.body || '', mw);
+                    doc.text(b, m, y);
+                    y += b.length * 5 + 15;
+                    doc.text(data.closing || 'Sincerely,', m, y);
+                    y += 15;
+                    doc.text(data.senderName || '', m, y);
+                } else if (template.id === 'certificate') {
+                    doc.setFillColor(245, 245, 250);
+                    doc.rect(0, 0, w, doc.internal.pageSize.getHeight(), 'F');
+                    doc.setDrawColor(100, 100, 200);
+                    doc.setLineWidth(3);
+                    doc.rect(15, 15, w - 30, doc.internal.pageSize.getHeight() - 30);
+                    y = 50;
+                    doc.setFontSize(32);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(60, 60, 120);
+                    doc.text('Certificate of Achievement', w / 2, y, { align: 'center' });
+                    y += 30;
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(0, 0, 0);
+                    doc.text('This certifies that', w / 2, y, { align: 'center' });
+                    y += 20;
+                    doc.setFontSize(24);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(100, 100, 200);
+                    doc.text(data.recipientName || '', w / 2, y, { align: 'center' });
+                    y += 20;
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(0, 0, 0);
+                    doc.text('has successfully completed', w / 2, y, { align: 'center' });
+                    y += 15;
+                    doc.setFontSize(18);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(data.achievement || '', w / 2, y, { align: 'center' });
+                    y += 25;
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(`Date: ${data.date || ''}`, w / 2, y, { align: 'center' });
+                    y += 30;
+                    doc.setFontSize(10);
+                    doc.text(data.signerName || '', w / 2 - 40, y, { align: 'center' });
+                    doc.text(data.organization || '', w / 2 + 40, y, { align: 'center' });
+                    y += 2;
+                    doc.line(w / 2 - 70, y, w / 2 - 10, y);
+                    doc.line(w / 2 + 10, y, w / 2 + 70, y);
+                    y += 5;
+                    doc.setFont(undefined, 'italic');
+                    doc.text(data.signerTitle || '', w / 2 - 40, y, { align: 'center' });
+                    doc.text('Organization', w / 2 + 40, y, { align: 'center' });
+                }
+
+                doc.save(`${template.name.replace(/\s+/g, '_')}.pdf`);
+            };
+
+            const renderField = (f) => {
+                if (f.type === 'list') {
+                    return (
+                        <div key={f.name} className="mb-6">
+                            <label className="block text-sm font-medium mb-2">
+                                {f.label} {f.req && <span className="text-red-500">*</span>}
+                            </label>
+                            {(data[f.name] || [{}]).map((item, i) => (
+                                <div key={i} className="bg-gray-50 p-4 rounded-lg mb-3">
+                                    <div className="flex justify-between mb-3">
+                                        <span className="text-sm font-medium">Item {i + 1}</span>
+                                        {data[f.name].length > 1 && (
+                                            <button onClick={() => removeListItem(f.name, i)} className="text-red-500 hover:text-red-700 text-sm">
+                                                Remove
+                                            </button>
+                                        )}
+                                    </div>
+                                    {f.sub.map(sf => (
+                                        <div key={sf.name} className="mb-2">
+                                            <label className="block text-xs mb-1">{sf.label}</label>
+                                            {sf.type === 'textarea' ? (
+                                                <textarea
+                                                    value={item[sf.name] || ''}
+                                                    onChange={(e) => updateListItem(f.name, i, sf.name, e.target.value)}
+                                                    className="w-full px-3 py-2 border rounded-lg text-sm"
+                                                    rows="2"
+                                                />
+                                            ) : (
+                                                <input
+                                                    type={sf.type || 'text'}
+                                                    value={item[sf.name] || ''}
+                                                    onChange={(e) => updateListItem(f.name, i, sf.name, e.target.value)}
+                                                    className="w-full px-3 py-2 border rounded-lg text-sm"
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                            <button onClick={() => addListItem(f.name)} className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                                + Add {f.label}
+                            </button>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div key={f.name} className="mb-4">
+                        <label className="block text-sm font-medium mb-2">
+                            {f.label} {f.req && <span className="text-red-500">*</span>}
+                        </label>
+                        {f.type === 'textarea' ? (
+                            <textarea
+                                value={data[f.name] || ''}
+                                onChange={(e) => updateData(f.name, e.target.value)}
+                                className="w-full px-4 py-2 border rounded-lg"
+                                rows="4"
+                            />
+                        ) : (
+                            <input
+                                type={f.type || 'text'}
+                                value={data[f.name] || ''}
+                                onChange={(e) => updateData(f.name, e.target.value)}
+                                className="w-full px-4 py-2 border rounded-lg"
+                            />
+                        )}
+                    </div>
+                );
+            };
+
+            if (view === 'editor' && template) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+                        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
+                            <button onClick={() => { setView('home'); setTemplate(null); }} className="text-gray-600 hover:text-gray-800 mb-6 flex items-center gap-2">
+                                ← Back
+                            </button>
+                            <div className="flex items-center gap-3 mb-6">
+                                <span className="text-4xl">{template.icon}</span>
+                                <h2 className="text-2xl font-bold">{template.name}</h2>
+                            </div>
+                            <div className="space-y-4">
+                                {template.fields.map(renderField)}
+                                <button onClick={generatePDF} className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 mt-6">
+                                    Download PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="text-center mb-12">
+                            <h1 className="text-4xl font-bold text-gray-800 mb-4">Universal Document Generator</h1>
+                            <p className="text-gray-600 text-lg">Create professional documents in minutes</p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {templates.map(t => (
+                                <div key={t.id} onClick={() => selectTemplate(t)} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl cursor-pointer border-2 border-transparent hover:border-blue-300 transition">
+                                    <div className="flex items-start gap-4">
+                                        <span className="text-5xl">{t.icon}</span>
+                                        <div>
+                                            <h3 className="text-xl font-bold mb-2">{t.name}</h3>
+                                            <p className="text-gray-600 mb-4">{t.desc}</p>
+                                            <span className="text-blue-600 font-semibold">Create →</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
