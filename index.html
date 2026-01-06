@@ -56,6 +56,88 @@
                     ]
                 },
                 {
+                    id: 'cv',
+                    name: 'Curriculum Vitae (CV)',
+                    icon: '📋',
+                    desc: 'Comprehensive academic/professional CV',
+                    category: 'Personal',
+                    featured: true,
+                    hasStyles: true,
+                    styles: ['classic', 'modern', 'minimal'],
+                    fields: [
+                        { name: 'fullName', label: 'Full Name', type: 'text', req: true },
+                        { name: 'email', label: 'Email', type: 'email', req: true },
+                        { name: 'phone', label: 'Phone', type: 'tel', req: true },
+                        { name: 'address', label: 'Address', type: 'text' },
+                        { name: 'website', label: 'Website/LinkedIn', type: 'text' },
+                        { name: 'objective', label: 'Professional Objective', type: 'textarea', req: true },
+                        { name: 'experience', label: 'Professional Experience', type: 'list', req: true,
+                            sub: [
+                                { name: 'position', label: 'Position' },
+                                { name: 'organization', label: 'Organization' },
+                                { name: 'location', label: 'Location' },
+                                { name: 'dates', label: 'Dates' },
+                                { name: 'responsibilities', label: 'Responsibilities', type: 'textarea' }
+                            ]
+                        },
+                        { name: 'education', label: 'Education', type: 'list', req: true,
+                            sub: [
+                                { name: 'degree', label: 'Degree' },
+                                { name: 'institution', label: 'Institution' },
+                                { name: 'location', label: 'Location' },
+                                { name: 'year', label: 'Year' },
+                                { name: 'honors', label: 'Honors/GPA' }
+                            ]
+                        },
+                        { name: 'publications', label: 'Publications', type: 'list',
+                            sub: [
+                                { name: 'title', label: 'Title' },
+                                { name: 'journal', label: 'Journal/Conference' },
+                                { name: 'year', label: 'Year' }
+                            ]
+                        },
+                        { name: 'skills', label: 'Skills & Competencies', type: 'textarea', req: true },
+                        { name: 'languages', label: 'Languages', type: 'text' },
+                        { name: 'certifications', label: 'Certifications', type: 'textarea' }
+                    ]
+                },
+                {
+                    id: 'portfolio',
+                    name: 'Portfolio',
+                    icon: '🎨',
+                    desc: 'Showcase your work and projects',
+                    category: 'Personal',
+                    featured: true,
+                    hasStyles: true,
+                    styles: ['classic', 'modern', 'creative'],
+                    fields: [
+                        { name: 'fullName', label: 'Your Name', type: 'text', req: true },
+                        { name: 'title', label: 'Professional Title', type: 'text', req: true },
+                        { name: 'email', label: 'Email', type: 'email', req: true },
+                        { name: 'phone', label: 'Phone', type: 'tel' },
+                        { name: 'website', label: 'Website/Portfolio URL', type: 'text' },
+                        { name: 'bio', label: 'Professional Bio', type: 'textarea', req: true },
+                        { name: 'projects', label: 'Projects', type: 'list', req: true,
+                            sub: [
+                                { name: 'projectName', label: 'Project Name' },
+                                { name: 'role', label: 'Your Role' },
+                                { name: 'date', label: 'Date/Year' },
+                                { name: 'description', label: 'Description', type: 'textarea' },
+                                { name: 'technologies', label: 'Technologies/Tools Used' }
+                            ]
+                        },
+                        { name: 'skills', label: 'Core Skills', type: 'textarea', req: true },
+                        { name: 'awards', label: 'Awards & Recognition', type: 'list',
+                            sub: [
+                                { name: 'award', label: 'Award' },
+                                { name: 'organization', label: 'Organization' },
+                                { name: 'year', label: 'Year' }
+                            ]
+                        },
+                        { name: 'clients', label: 'Notable Clients/Companies', type: 'text' }
+                    ]
+                },
+                {
                     id: 'invoice',
                     name: 'Business Invoice',
                     icon: '💰',
@@ -269,6 +351,7 @@
 
             const selectTemplate = (t) => {
                 setTemplate(t);
+                setSelectedStyle(t.hasStyles ? 'classic' : null);
                 const init = {};
                 t.fields.forEach(f => {
                     init[f.name] = f.type === 'list' ? [{}] : '';
@@ -303,21 +386,68 @@
                     return false;
                 };
 
+                // Style configurations
+                const applyStyle = (style) => {
+                    if (style === 'modern') {
+                        return { primaryColor: [52, 152, 219], headerSize: 26, accentColor: [41, 128, 185] };
+                    } else if (style === 'minimal') {
+                        return { primaryColor: [44, 62, 80], headerSize: 22, accentColor: [127, 140, 141] };
+                    } else if (style === 'creative') {
+                        return { primaryColor: [155, 89, 182], headerSize: 28, accentColor: [142, 68, 173] };
+                    } else { // classic
+                        return { primaryColor: [0, 0, 0], headerSize: 24, accentColor: [50, 50, 50] };
+                    }
+                };
+
+                const styleConfig = applyStyle(selectedStyle);
+
                 if (template.id === 'resume') {
-                    doc.setFontSize(24);
-                    doc.setFont(undefined, 'bold');
-                    doc.text(data.fullName || '', w / 2, y, { align: 'center' });
-                    y += 10;
-                    doc.setFontSize(10);
-                    doc.setFont(undefined, 'normal');
-                    doc.text(`${data.email || ''} | ${data.phone || ''} | ${data.address || ''}`, w / 2, y, { align: 'center' });
-                    y += 15;
+                    if (selectedStyle === 'modern') {
+                        // Modern Resume Style
+                        doc.setFillColor(styleConfig.primaryColor[0], styleConfig.primaryColor[1], styleConfig.primaryColor[2]);
+                        doc.rect(0, 0, w, 35, 'F');
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFontSize(styleConfig.headerSize);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(data.fullName || '', w / 2, 15, { align: 'center' });
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'normal');
+                        doc.text(`${data.email || ''} | ${data.phone || ''}`, w / 2, 25, { align: 'center' });
+                        y = 45;
+                        doc.setTextColor(0, 0, 0);
+                    } else if (selectedStyle === 'minimal') {
+                        // Minimal Resume Style
+                        doc.setFontSize(styleConfig.headerSize);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.primaryColor[0], styleConfig.primaryColor[1], styleConfig.primaryColor[2]);
+                        doc.text(data.fullName || '', m, y);
+                        y += 8;
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'normal');
+                        doc.setTextColor(100, 100, 100);
+                        doc.text(`${data.email || ''} • ${data.phone || ''} • ${data.address || ''}`, m, y);
+                        y += 15;
+                        doc.setTextColor(0, 0, 0);
+                    } else {
+                        // Classic Resume Style
+                        doc.setFontSize(styleConfig.headerSize);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(data.fullName || '', w / 2, y, { align: 'center' });
+                        y += 10;
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'normal');
+                        doc.text(`${data.email || ''} | ${data.phone || ''} | ${data.address || ''}`, w / 2, y, { align: 'center' });
+                        y += 15;
+                    }
+
                     doc.setFontSize(12);
                     doc.setFont(undefined, 'bold');
+                    doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
                     doc.text('PROFESSIONAL SUMMARY', m, y);
                     y += 7;
                     doc.setFontSize(10);
                     doc.setFont(undefined, 'normal');
+                    doc.setTextColor(0, 0, 0);
                     const sum = doc.splitTextToSize(data.summary || '', mw);
                     doc.text(sum, m, y);
                     y += sum.length * 5 + 10;
@@ -326,12 +456,14 @@
                         checkPageBreak(20);
                         doc.setFontSize(12);
                         doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
                         doc.text('WORK EXPERIENCE', m, y);
                         y += 7;
                         data.experience.forEach(e => {
                             checkPageBreak(30);
                             doc.setFontSize(11);
                             doc.setFont(undefined, 'bold');
+                            doc.setTextColor(0, 0, 0);
                             doc.text(e.jobTitle || '', m, y);
                             doc.setFont(undefined, 'normal');
                             doc.text(e.duration || '', w - m, y, { align: 'right' });
@@ -351,11 +483,13 @@
                         checkPageBreak(20);
                         doc.setFontSize(12);
                         doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
                         doc.text('EDUCATION', m, y);
                         y += 7;
                         data.education.forEach(e => {
                             doc.setFontSize(11);
                             doc.setFont(undefined, 'bold');
+                            doc.setTextColor(0, 0, 0);
                             doc.text(e.degree || '', m, y);
                             doc.setFont(undefined, 'normal');
                             doc.text(e.year || '', w - m, y, { align: 'right' });
@@ -370,10 +504,286 @@
                         checkPageBreak(15);
                         doc.setFontSize(12);
                         doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
                         doc.text('SKILLS', m, y);
                         y += 7;
                         doc.setFontSize(10);
                         doc.setFont(undefined, 'normal');
+                        doc.setTextColor(0, 0, 0);
+                        const sk = doc.splitTextToSize(data.skills, mw);
+                        doc.text(sk, m, y);
+                    }
+                } else if (template.id === 'cv') {
+                    // CV Generation with styles
+                    if (selectedStyle === 'modern') {
+                        doc.setFillColor(styleConfig.primaryColor[0], styleConfig.primaryColor[1], styleConfig.primaryColor[2]);
+                        doc.rect(0, 0, 60, doc.internal.pageSize.getHeight(), 'F');
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFontSize(20);
+                        doc.setFont(undefined, 'bold');
+                        const nameLines = doc.splitTextToSize(data.fullName || '', 50);
+                        doc.text(nameLines, 5, 20);
+                        y = 20 + nameLines.length * 8;
+                        doc.setFontSize(8);
+                        doc.setFont(undefined, 'normal');
+                        doc.text(data.email || '', 5, y);
+                        y += 5;
+                        doc.text(data.phone || '', 5, y);
+                        y += 5;
+                        if (data.website) {
+                            doc.text(data.website, 5, y);
+                        }
+                        
+                        // Main content area
+                        y = 20;
+                        const contentX = 65;
+                        const contentW = w - contentX - m;
+                        doc.setTextColor(0, 0, 0);
+                        
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('PROFESSIONAL OBJECTIVE', contentX, y);
+                        y += 7;
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'normal');
+                        const obj = doc.splitTextToSize(data.objective || '', contentW);
+                        doc.text(obj, contentX, y);
+                        y += obj.length * 5 + 10;
+
+                        if (data.experience?.length) {
+                            checkPageBreak(20);
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'bold');
+                            doc.text('EXPERIENCE', contentX, y);
+                            y += 7;
+                            data.experience.forEach(e => {
+                                checkPageBreak(25);
+                                doc.setFontSize(11);
+                                doc.setFont(undefined, 'bold');
+                                doc.text(e.position || '', contentX, y);
+                                y += 6;
+                                doc.setFontSize(10);
+                                doc.setFont(undefined, 'italic');
+                                doc.text(`${e.organization || ''} - ${e.location || ''}`, contentX, y);
+                                y += 5;
+                                doc.setFont(undefined, 'normal');
+                                doc.text(e.dates || '', contentX, y);
+                                y += 6;
+                                const resp = doc.splitTextToSize(e.responsibilities || '', contentW);
+                                doc.text(resp, contentX, y);
+                                y += resp.length * 5 + 8;
+                            });
+                        }
+                    } else {
+                        // Classic/Minimal CV Style
+                        doc.setFontSize(styleConfig.headerSize);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.primaryColor[0], styleConfig.primaryColor[1], styleConfig.primaryColor[2]);
+                        doc.text(data.fullName || '', w / 2, y, { align: 'center' });
+                        y += 8;
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'normal');
+                        doc.setTextColor(0, 0, 0);
+                        doc.text(`${data.email || ''} | ${data.phone || ''} | ${data.website || ''}`, w / 2, y, { align: 'center' });
+                        y += 15;
+
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
+                        doc.text('PROFESSIONAL OBJECTIVE', m, y);
+                        y += 7;
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'normal');
+                        doc.setTextColor(0, 0, 0);
+                        const obj = doc.splitTextToSize(data.objective || '', mw);
+                        doc.text(obj, m, y);
+                        y += obj.length * 5 + 10;
+
+                        if (data.experience?.length) {
+                            checkPageBreak(20);
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'bold');
+                            doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
+                            doc.text('PROFESSIONAL EXPERIENCE', m, y);
+                            y += 7;
+                            data.experience.forEach(e => {
+                                checkPageBreak(25);
+                                doc.setFontSize(11);
+                                doc.setFont(undefined, 'bold');
+                                doc.setTextColor(0, 0, 0);
+                                doc.text(e.position || '', m, y);
+                                doc.setFont(undefined, 'normal');
+                                doc.text(e.dates || '', w - m, y, { align: 'right' });
+                                y += 6;
+                                doc.setFontSize(10);
+                                doc.setFont(undefined, 'italic');
+                                doc.text(`${e.organization || ''}, ${e.location || ''}`, m, y);
+                                y += 6;
+                                doc.setFont(undefined, 'normal');
+                                const resp = doc.splitTextToSize(e.responsibilities || '', mw);
+                                doc.text(resp, m, y);
+                                y += resp.length * 5 + 8;
+                            });
+                        }
+
+                        if (data.education?.length) {
+                            checkPageBreak(20);
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'bold');
+                            doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
+                            doc.text('EDUCATION', m, y);
+                            y += 7;
+                            data.education.forEach(e => {
+                                doc.setFontSize(11);
+                                doc.setFont(undefined, 'bold');
+                                doc.setTextColor(0, 0, 0);
+                                doc.text(`${e.degree || ''} ${e.honors ? '(' + e.honors + ')' : ''}`, m, y);
+                                doc.setFont(undefined, 'normal');
+                                doc.text(e.year || '', w - m, y, { align: 'right' });
+                                y += 6;
+                                doc.setFontSize(10);
+                                doc.text(`${e.institution || ''}, ${e.location || ''}`, m, y);
+                                y += 8;
+                            });
+                        }
+
+                        if (data.publications?.length && data.publications[0].title) {
+                            checkPageBreak(20);
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'bold');
+                            doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
+                            doc.text('PUBLICATIONS', m, y);
+                            y += 7;
+                            data.publications.forEach(p => {
+                                if (p.title) {
+                                    doc.setFontSize(10);
+                                    doc.setFont(undefined, 'normal');
+                                    doc.setTextColor(0, 0, 0);
+                                    doc.text(`${p.title}. ${p.journal || ''}. ${p.year || ''}`, m, y);
+                                    y += 6;
+                                }
+                            });
+                            y += 4;
+                        }
+
+                        if (data.skills) {
+                            checkPageBreak(15);
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'bold');
+                            doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
+                            doc.text('SKILLS & COMPETENCIES', m, y);
+                            y += 7;
+                            doc.setFontSize(10);
+                            doc.setFont(undefined, 'normal');
+                            doc.setTextColor(0, 0, 0);
+                            const sk = doc.splitTextToSize(data.skills, mw);
+                            doc.text(sk, m, y);
+                        }
+                    }
+                } else if (template.id === 'portfolio') {
+                    // Portfolio Generation with styles
+                    if (selectedStyle === 'creative') {
+                        // Creative Portfolio Style
+                        doc.setFillColor(styleConfig.primaryColor[0], styleConfig.primaryColor[1], styleConfig.primaryColor[2]);
+                        doc.rect(0, 0, w, 45, 'F');
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFontSize(styleConfig.headerSize);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(data.fullName || '', w / 2, 20, { align: 'center' });
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'normal');
+                        doc.text(data.title || '', w / 2, 30, { align: 'center' });
+                        doc.setFontSize(9);
+                        doc.text(`${data.email || ''} | ${data.phone || ''}`, w / 2, 38, { align: 'center' });
+                        y = 55;
+                        doc.setTextColor(0, 0, 0);
+                    } else if (selectedStyle === 'modern') {
+                        // Modern Portfolio Style
+                        doc.setFontSize(styleConfig.headerSize);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.primaryColor[0], styleConfig.primaryColor[1], styleConfig.primaryColor[2]);
+                        doc.text(data.fullName || '', m, y);
+                        y += 8;
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'normal');
+                        doc.text(data.title || '', m, y);
+                        y += 8;
+                        doc.setFontSize(9);
+                        doc.setTextColor(100, 100, 100);
+                        doc.text(`${data.email || ''} | ${data.phone || ''} | ${data.website || ''}`, m, y);
+                        y += 15;
+                        doc.setTextColor(0, 0, 0);
+                    } else {
+                        // Classic Portfolio Style
+                        doc.setFontSize(styleConfig.headerSize);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(data.fullName || '', w / 2, y, { align: 'center' });
+                        y += 8;
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'italic');
+                        doc.text(data.title || '', w / 2, y, { align: 'center' });
+                        y += 10;
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'normal');
+                        doc.text(`${data.email || ''} | ${data.phone || ''} | ${data.website || ''}`, w / 2, y, { align: 'center' });
+                        y += 15;
+                    }
+
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
+                    doc.text('ABOUT', m, y);
+                    y += 7;
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(0, 0, 0);
+                    const bio = doc.splitTextToSize(data.bio || '', mw);
+                    doc.text(bio, m, y);
+                    y += bio.length * 5 + 10;
+
+                    if (data.projects?.length) {
+                        checkPageBreak(20);
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
+                        doc.text('FEATURED PROJECTS', m, y);
+                        y += 7;
+                        data.projects.forEach((p, idx) => {
+                            checkPageBreak(30);
+                            doc.setFontSize(11);
+                            doc.setFont(undefined, 'bold');
+                            doc.setTextColor(0, 0, 0);
+                            doc.text(`${idx + 1}. ${p.projectName || ''}`, m, y);
+                            y += 6;
+                            doc.setFontSize(10);
+                            doc.setFont(undefined, 'italic');
+                            doc.text(`${p.role || ''} | ${p.date || ''}`, m, y);
+                            y += 6;
+                            doc.setFont(undefined, 'normal');
+                            const desc = doc.splitTextToSize(p.description || '', mw);
+                            doc.text(desc, m, y);
+                            y += desc.length * 5 + 3;
+                            if (p.technologies) {
+                                doc.setFontSize(9);
+                                doc.setTextColor(100, 100, 100);
+                                doc.text(`Technologies: ${p.technologies}`, m, y);
+                                y += 6;
+                                doc.setTextColor(0, 0, 0);
+                            }
+                            y += 5;
+                        });
+                    }
+
+                    if (data.skills) {
+                        checkPageBreak(15);
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(styleConfig.accentColor[0], styleConfig.accentColor[1], styleConfig.accentColor[2]);
+                        doc.text('CORE SKILLS', m, y);
+                        y += 7;
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'normal');
+                        doc.setTextColor(0, 0, 0);
                         const sk = doc.splitTextToSize(data.skills, mw);
                         doc.text(sk, m, y);
                     }
@@ -650,6 +1060,66 @@
             };
 
             if (view === 'editor' && template) {
+                const styleVisuals = {
+                    classic: {
+                        name: 'Classic',
+                        icon: '📄',
+                        preview: (
+                            <div className="w-full h-24 bg-white border-2 border-gray-300 rounded p-2">
+                                <div className="h-3 bg-gray-800 w-1/2 mx-auto mb-2"></div>
+                                <div className="h-2 bg-gray-400 w-3/4 mx-auto mb-1"></div>
+                                <div className="h-2 bg-gray-300 w-full mb-1"></div>
+                                <div className="h-2 bg-gray-300 w-full"></div>
+                            </div>
+                        )
+                    },
+                    modern: {
+                        name: 'Modern',
+                        icon: '✨',
+                        preview: (
+                            <div className="w-full h-24 bg-white border-2 border-blue-400 rounded overflow-hidden">
+                                <div className="h-8 bg-blue-500 flex items-center justify-center">
+                                    <div className="h-2 bg-white w-1/3"></div>
+                                </div>
+                                <div className="p-2">
+                                    <div className="h-2 bg-gray-300 w-full mb-1"></div>
+                                    <div className="h-2 bg-gray-300 w-3/4"></div>
+                                </div>
+                            </div>
+                        )
+                    },
+                    minimal: {
+                        name: 'Minimal',
+                        icon: '◻️',
+                        preview: (
+                            <div className="w-full h-24 bg-white border-2 border-gray-200 rounded p-2">
+                                <div className="h-2 bg-gray-800 w-1/3 mb-2"></div>
+                                <div className="h-1 bg-gray-300 w-1/2 mb-2"></div>
+                                <div className="space-y-1">
+                                    <div className="h-1 bg-gray-200 w-full"></div>
+                                    <div className="h-1 bg-gray-200 w-full"></div>
+                                    <div className="h-1 bg-gray-200 w-4/5"></div>
+                                </div>
+                            </div>
+                        )
+                    },
+                    creative: {
+                        name: 'Creative',
+                        icon: '🎨',
+                        preview: (
+                            <div className="w-full h-24 bg-white border-2 border-purple-400 rounded overflow-hidden">
+                                <div className="h-10 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                                    <div className="h-2 bg-white w-1/3"></div>
+                                </div>
+                                <div className="p-2">
+                                    <div className="h-2 bg-purple-300 w-full mb-1"></div>
+                                    <div className="h-2 bg-purple-200 w-3/4"></div>
+                                </div>
+                            </div>
+                        )
+                    }
+                };
+
                 return (
                     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
                         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
@@ -663,6 +1133,33 @@
                                     <p className="text-sm text-gray-600">{template.desc}</p>
                                 </div>
                             </div>
+
+                            {/* Style Selector */}
+                            {template.hasStyles && (
+                                <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+                                    <h3 className="text-lg font-semibold mb-4">Choose Your Style</h3>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {template.styles.map(style => (
+                                            <div
+                                                key={style}
+                                                onClick={() => setSelectedStyle(style)}
+                                                className={`cursor-pointer rounded-lg p-3 transition ${
+                                                    selectedStyle === style
+                                                        ? 'ring-2 ring-blue-500 bg-blue-50'
+                                                        : 'bg-white hover:shadow-md'
+                                                }`}
+                                            >
+                                                <div className="text-center mb-2">
+                                                    <span className="text-2xl">{styleVisuals[style].icon}</span>
+                                                    <p className="text-sm font-medium mt-1">{styleVisuals[style].name}</p>
+                                                </div>
+                                                {styleVisuals[style].preview}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="space-y-4">
                                 {template.fields.map(renderField)}
                                 <button onClick={generatePDF} className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 mt-6">
