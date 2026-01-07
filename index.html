@@ -26,12 +26,20 @@
             const [showSaveModal, setShowSaveModal] = useState(false);
             const [draftName, setDraftName] = useState('');
             const [showLoadModal, setShowLoadModal] = useState(false);
+            const [uploadedImages, setUploadedImages] = useState({});
+            const [documentHistory, setDocumentHistory] = useState([]);
+            const [showHistory, setShowHistory] = useState(false);
+            const [showTips, setShowTips] = useState(true);
 
             // Load saved drafts on mount
             useEffect(() => {
                 const drafts = localStorage.getItem('easydoc_drafts');
                 if (drafts) {
                     setSavedDrafts(JSON.parse(drafts));
+                }
+                const history = localStorage.getItem('easydoc_history');
+                if (history) {
+                    setDocumentHistory(JSON.parse(history));
                 }
             }, []);
 
@@ -41,6 +49,13 @@
                     localStorage.setItem('easydoc_drafts', JSON.stringify(savedDrafts));
                 }
             }, [savedDrafts]);
+
+            // Save history to localStorage
+            useEffect(() => {
+                if (documentHistory.length > 0) {
+                    localStorage.setItem('easydoc_history', JSON.stringify(documentHistory));
+                }
+            }, [documentHistory]);
 
             const templates = [
                 // FEATURED TEMPLATES
@@ -83,9 +98,12 @@
                     category: 'Personal',
                     featured: true,
                     hasStyles: true,
+                    hasImages: true,
+                    imageFields: ['photo'],
                     styles: ['classic', 'modern', 'minimal'],
                     fields: [
                         { name: 'fullName', label: 'Full Name', type: 'text', req: true },
+                        { name: 'photo', label: 'Photo (Optional)', type: 'image', help: 'Professional headshot recommended' },
                         { name: 'email', label: 'Email', type: 'email', req: true },
                         { name: 'phone', label: 'Phone', type: 'tel', req: true },
                         { name: 'address', label: 'Address', type: 'text' },
@@ -129,9 +147,12 @@
                     category: 'Personal',
                     featured: true,
                     hasStyles: true,
+                    hasImages: true,
+                    imageFields: ['profilePhoto'],
                     styles: ['classic', 'modern', 'creative'],
                     fields: [
                         { name: 'fullName', label: 'Your Name', type: 'text', req: true },
+                        { name: 'profilePhoto', label: 'Profile Photo (Optional)', type: 'image', help: 'Upload a professional headshot' },
                         { name: 'title', label: 'Professional Title', type: 'text', req: true },
                         { name: 'email', label: 'Email', type: 'email', req: true },
                         { name: 'phone', label: 'Phone', type: 'tel' },
@@ -163,9 +184,11 @@
                     icon: '💰',
                     desc: 'Generate professional invoices for clients',
                     category: 'Business',
-                    featured: true,
+                    hasImages: true,
+                    imageFields: ['logo'],
                     fields: [
                         { name: 'invoiceNumber', label: 'Invoice #', type: 'text', req: true },
+                        { name: 'logo', label: 'Company Logo (Optional)', type: 'image', help: 'Add your business logo' },
                         { name: 'date', label: 'Date', type: 'date', req: true },
                         { name: 'dueDate', label: 'Due Date', type: 'date', req: true },
                         { name: 'fromName', label: 'Your Business', type: 'text', req: true },
@@ -566,7 +589,35 @@
                 }
             };
 
-            // Fill with sample data
+            // Handle image upload
+            const handleImageUpload = (fieldName, event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                        alert('Image size should be less than 2MB');
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        setUploadedImages(prev => ({
+                            ...prev,
+                            [fieldName]: e.target.result
+                        }));
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            // Add to document history
+            const addToHistory = (templateName) => {
+                const historyItem = {
+                    id: Date.now(),
+                    templateName: templateName,
+                    date: new Date().toLocaleString(),
+                    timestamp: Date.now()
+                };
+                setDocumentHistory(prev => [historyItem, ...prev.slice(0, 9)]); // Keep last 10
+            };
             const fillSampleData = () => {
                 if (!confirm('This will replace your current data with sample data. Continue?')) return;
                 
@@ -609,6 +660,9 @@
                 const m = 20;
                 const mw = w - 2 * m;
 
+                // Add to history
+                addToHistory(template.name);
+
                 // Helper function for page breaks
                 const checkPageBreak = (needed) => {
                     if (y + needed > 270) {
@@ -650,6 +704,12 @@
                         // Modern Resume Style
                         doc.setFillColor(styleConfig.primaryColor[0], styleConfig.primaryColor[1], styleConfig.primaryColor[2]);
                         doc.rect(0, 0, w, 35, 'F');
+                        
+                        // Add photo if uploaded
+                        if (uploadedImages.photo) {
+                            doc.addImage(uploadedImages.photo, 'JPEG', w - 40, 5, 25, 25);
+                        }
+                        
                         doc.setTextColor(255, 255, 255);
                         doc.setFontSize(styleConfig.headerSize);
                         doc.setFont(undefined, 'bold');
@@ -930,6 +990,13 @@
                         // Creative Portfolio Style
                         doc.setFillColor(styleConfig.primaryColor[0], styleConfig.primaryColor[1], styleConfig.primaryColor[2]);
                         doc.rect(0, 0, w, 45, 'F');
+                        
+                        // Add profile photo if uploaded
+                        if (uploadedImages.profilePhoto) {
+                            doc.addImage(uploadedImages.profilePhoto, 'JPEG', w / 2 - 15, 50, 30, 30);
+                            y = 90;
+                        }
+                        
                         doc.setTextColor(255, 255, 255);
                         doc.setFontSize(styleConfig.headerSize);
                         doc.setFont(undefined, 'bold');
@@ -1034,6 +1101,12 @@
                 } else if (template.id === 'invoice') {
                     doc.setFontSize(24);
                     doc.setFont(undefined, 'bold');
+                    
+                    // Add logo if uploaded
+                    if (uploadedImages.logo) {
+                        doc.addImage(uploadedImages.logo, 'JPEG', w - 50, 10, 30, 30);
+                    }
+                    
                     doc.text('INVOICE', m, y);
                     y += 15;
                     doc.setFontSize(10);
@@ -1234,6 +1307,40 @@
             };
 
             const renderField = (f) => {
+                if (f.type === 'image') {
+                    return (
+                        <div key={f.name} className="mb-4">
+                            <label className="block text-sm font-medium mb-2">
+                                {f.label} {f.req && <span className="text-red-500">*</span>}
+                                {f.help && (
+                                    <span className="ml-2 text-xs text-gray-500 italic">💡 {f.help}</span>
+                                )}
+                            </label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(f.name, e)}
+                                className="w-full px-4 py-2 border rounded-lg"
+                            />
+                            {uploadedImages[f.name] && (
+                                <div className="mt-2">
+                                    <img src={uploadedImages[f.name]} alt="Preview" className="w-32 h-32 object-cover rounded-lg border" />
+                                    <button 
+                                        onClick={() => setUploadedImages(prev => {
+                                            const newImages = {...prev};
+                                            delete newImages[f.name];
+                                            return newImages;
+                                        })}
+                                        className="mt-2 text-sm text-red-600 hover:text-red-700"
+                                    >
+                                        Remove Image
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    );
+                }
+                
                 if (f.type === 'list') {
                     return (
                         <div key={f.name} className="mb-6">
@@ -1283,6 +1390,9 @@
                     <div key={f.name} className="mb-4">
                         <label className="block text-sm font-medium mb-2">
                             {f.label} {f.req && <span className="text-red-500">*</span>}
+                            {f.help && (
+                                <span className="ml-2 text-xs text-gray-500 italic">💡 {f.help}</span>
+                            )}
                         </label>
                         {f.type === 'textarea' ? (
                             <textarea
@@ -1507,15 +1617,29 @@
 
             const featuredTemplates = templates.filter(t => t.featured);
             const filteredTemplates = selectedCategory === 'all' 
-                ? templates.filter(t => !t.featured)
-                : templates.filter(t => !t.featured && t.category === selectedCategory);
+                ? templates // Show ALL templates including featured ones
+                : templates.filter(t => t.category === selectedCategory); // Show all in category
 
             return (
                 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
                     <div className="max-w-7xl mx-auto">
-                        <div className="text-center mb-12">
+                        <div className="text-center mb-8">
                             <h1 className="text-5xl font-bold text-gray-800 mb-4">EasyDoc</h1>
-                            <p className="text-gray-600 text-lg">Create professional documents in minutes. Choose from our library of templates.</p>
+                            <p className="text-gray-600 text-lg mb-4">Create professional documents in minutes. Choose from our library of templates.</p>
+                            <div className="flex gap-3 justify-center">
+                                <button 
+                                    onClick={() => setShowHistory(true)}
+                                    className="px-6 py-2 bg-white rounded-lg shadow hover:shadow-lg transition font-medium text-gray-700"
+                                >
+                                    📊 Recent Documents ({documentHistory.length})
+                                </button>
+                                {showTips && (
+                                    <div className="flex items-center gap-2 px-6 py-2 bg-blue-50 rounded-lg border border-blue-200">
+                                        <span className="text-sm text-blue-800">💡 <strong>Tip:</strong> You can save drafts and come back later!</span>
+                                        <button onClick={() => setShowTips(false)} className="text-blue-600 hover:text-blue-800">✕</button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Featured Templates */}
@@ -1604,6 +1728,32 @@
                             </div>
                         </div>
                     </div>
+
+                    {/* Document History Modal */}
+                    {showHistory && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+                                <h3 className="text-xl font-bold mb-4">Recent Documents</h3>
+                                {documentHistory.length === 0 ? (
+                                    <p className="text-gray-500 text-center py-8">No documents created yet</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {documentHistory.map(item => (
+                                            <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div className="font-semibold">{item.templateName}</div>
+                                                    <div className="text-sm text-gray-600">{item.date}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <button onClick={() => setShowHistory(false)} className="w-full mt-4 bg-gray-200 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
