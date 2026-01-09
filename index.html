@@ -9,6 +9,40 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark-mode .bg-white {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+        }
+        .dark-mode .text-gray-800 {
+            color: #e2e8f0 !important;
+        }
+        .dark-mode .text-gray-600 {
+            color: #cbd5e0 !important;
+        }
+        .dark-mode .bg-gray-50 {
+            background-color: #374151 !important;
+        }
+        .dark-mode .border-gray-300 {
+            border-color: #4a5568 !important;
+        }
+        .dark-mode input, .dark-mode textarea, .dark-mode select {
+            background-color: #374151 !important;
+            color: #e2e8f0 !important;
+            border-color: #4a5568 !important;
+        }
+    </style>
 </head>
 <body>
     <div id="root"></div>
@@ -30,6 +64,257 @@
             const [documentHistory, setDocumentHistory] = useState([]);
             const [showHistory, setShowHistory] = useState(false);
             const [showTips, setShowTips] = useState(true);
+            const [language, setLanguage] = useState('en');
+            const [searchQuery, setSearchQuery] = useState('');
+            const [selectedFont, setSelectedFont] = useState('helvetica');
+            const [darkMode, setDarkMode] = useState(false);
+            const [showPreview, setShowPreview] = useState(null);
+            const [showExportImport, setShowExportImport] = useState(false);
+
+            // Load dark mode preference
+            useEffect(() => {
+                const savedDarkMode = localStorage.getItem('easydoc_darkmode');
+                if (savedDarkMode) {
+                    setDarkMode(savedDarkMode === 'true');
+                }
+            }, []);
+
+            // Save dark mode preference
+            useEffect(() => {
+                localStorage.setItem('easydoc_darkmode', darkMode.toString());
+                if (darkMode) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }, [darkMode]);
+
+            // Translation dictionary
+            const translations = {
+                en: {
+                    title: 'EasyDoc',
+                    subtitle: 'Create professional documents in minutes. Choose from our library of templates.',
+                    recentDocs: 'Recent Documents',
+                    tip: 'Tip: You can save drafts and come back later!',
+                    mostPopular: 'Most Popular Templates',
+                    allTemplates: 'All Templates',
+                    all: 'All',
+                    business: 'Business',
+                    personal: 'Personal',
+                    legal: 'Legal',
+                    educational: 'Educational',
+                    events: 'Events',
+                    createDoc: 'Create Document',
+                    howItWorks: 'How It Works',
+                    step1: 'Choose Template',
+                    step1desc: 'Browse our library and select the document you need',
+                    step2: 'Fill Information',
+                    step2desc: 'Enter your details in the easy-to-use form',
+                    step3: 'Download PDF',
+                    step3desc: 'Get your professional document instantly',
+                    backToTemplates: 'Back to Templates',
+                    load: 'Load',
+                    saveDraft: 'Save Draft',
+                    sampleData: 'Sample Data',
+                    customizeColors: 'Customize Your Colors',
+                    chooseAccent: 'Choose an accent color for your document',
+                    chooseStyle: 'Choose Your Style',
+                    downloadPDF: 'Download PDF',
+                    saveDraftTitle: 'Save Draft',
+                    enterName: 'Enter draft name...',
+                    save: 'Save',
+                    cancel: 'Cancel',
+                    loadDraftTitle: 'Load Draft',
+                    noSavedDrafts: 'No saved drafts yet',
+                    delete: 'Delete',
+                    close: 'Close',
+                    noDocs: 'No documents created yet',
+                    optional: 'Optional',
+                    required: 'Required',
+                    remove: 'Remove',
+                    add: 'Add',
+                    search: 'Search templates...',
+                    previewTemplate: 'Preview Template',
+                    font: 'Font',
+                    exportData: 'Export Data',
+                    importData: 'Import Data',
+                    darkMode: 'Dark Mode',
+                    exportImport: 'Export/Import',
+                    exportDesc: 'Download all your drafts and settings',
+                    importDesc: 'Load drafts from an exported file',
+                    export: 'Export',
+                    import: 'Import',
+                    selectFile: 'Select File'
+                },
+                pt: {
+                    title: 'EasyDoc',
+                    subtitle: 'Crie documentos profissionais em minutos. Escolha entre nossa biblioteca de modelos.',
+                    recentDocs: 'Documentos Recentes',
+                    tip: 'Dica: Você pode salvar rascunhos e voltar depois!',
+                    mostPopular: 'Modelos Mais Populares',
+                    allTemplates: 'Todos os Modelos',
+                    all: 'Todos',
+                    business: 'Negócios',
+                    personal: 'Pessoal',
+                    legal: 'Jurídico',
+                    educational: 'Educacional',
+                    events: 'Eventos',
+                    createDoc: 'Criar Documento',
+                    howItWorks: 'Como Funciona',
+                    step1: 'Escolha o Modelo',
+                    step1desc: 'Navegue em nossa biblioteca e selecione o documento que precisa',
+                    step2: 'Preencha as Informações',
+                    step2desc: 'Insira seus dados no formulário fácil de usar',
+                    step3: 'Baixe o PDF',
+                    step3desc: 'Obtenha seu documento profissional instantaneamente',
+                    backToTemplates: 'Voltar aos Modelos',
+                    load: 'Carregar',
+                    saveDraft: 'Salvar Rascunho',
+                    sampleData: 'Dados de Exemplo',
+                    customizeColors: 'Personalize Suas Cores',
+                    chooseAccent: 'Escolha uma cor de destaque para seu documento',
+                    chooseStyle: 'Escolha Seu Estilo',
+                    downloadPDF: 'Baixar PDF',
+                    saveDraftTitle: 'Salvar Rascunho',
+                    enterName: 'Digite o nome do rascunho...',
+                    save: 'Salvar',
+                    cancel: 'Cancelar',
+                    loadDraftTitle: 'Carregar Rascunho',
+                    noSavedDrafts: 'Nenhum rascunho salvo ainda',
+                    delete: 'Excluir',
+                    close: 'Fechar',
+                    noDocs: 'Nenhum documento criado ainda',
+                    optional: 'Opcional',
+                    required: 'Obrigatório',
+                    remove: 'Remover',
+                    add: 'Adicionar'
+                    add: 'Adicionar',
+                    search: 'Pesquisar modelos...',
+                    previewTemplate: 'Visualizar Modelo',
+                    font: 'Fonte',
+                    exportData: 'Exportar Dados',
+                    importData: 'Importar Dados',
+                    darkMode: 'Modo Escuro',
+                    exportImport: 'Exportar/Importar',
+                    exportDesc: 'Baixe todos os seus rascunhos e configurações',
+                    importDesc: 'Carregue rascunhos de um arquivo exportado',
+                    export: 'Exportar',
+                    import: 'Importar',
+                    selectFile: 'Selecionar Arquivo'
+                },
+                es: {
+                    title: 'EasyDoc',
+                    subtitle: 'Crea documentos profesionales en minutos. Elige entre nuestra biblioteca de plantillas.',
+                    recentDocs: 'Documentos Recientes',
+                    tip: '¡Consejo: Puedes guardar borradores y volver más tarde!',
+                    mostPopular: 'Plantillas Más Populares',
+                    allTemplates: 'Todas las Plantillas',
+                    all: 'Todas',
+                    business: 'Negocios',
+                    personal: 'Personal',
+                    legal: 'Legal',
+                    educational: 'Educativo',
+                    events: 'Eventos',
+                    createDoc: 'Crear Documento',
+                    howItWorks: 'Cómo Funciona',
+                    step1: 'Elige Plantilla',
+                    step1desc: 'Navega por nuestra biblioteca y selecciona el documento que necesitas',
+                    step2: 'Completa Información',
+                    step2desc: 'Ingresa tus datos en el formulario fácil de usar',
+                    step3: 'Descarga PDF',
+                    step3desc: 'Obtén tu documento profesional al instante',
+                    backToTemplates: 'Volver a Plantillas',
+                    load: 'Cargar',
+                    saveDraft: 'Guardar Borrador',
+                    sampleData: 'Datos de Ejemplo',
+                    customizeColors: 'Personaliza Tus Colores',
+                    chooseAccent: 'Elige un color de acento para tu documento',
+                    chooseStyle: 'Elige Tu Estilo',
+                    downloadPDF: 'Descargar PDF',
+                    saveDraftTitle: 'Guardar Borrador',
+                    enterName: 'Ingresa el nombre del borrador...',
+                    save: 'Guardar',
+                    cancel: 'Cancelar',
+                    loadDraftTitle: 'Cargar Borrador',
+                    noSavedDrafts: 'Aún no hay borradores guardados',
+                    delete: 'Eliminar',
+                    close: 'Cerrar',
+                    noDocs: 'Aún no se han creado documentos',
+                    optional: 'Opcional',
+                    required: 'Requerido',
+                    remove: 'Eliminar',
+                    add: 'Agregar',
+                    search: 'Buscar plantillas...',
+                    previewTemplate: 'Vista Previa',
+                    font: 'Fuente',
+                    exportData: 'Exportar Datos',
+                    importData: 'Importar Datos',
+                    darkMode: 'Modo Oscuro',
+                    exportImport: 'Exportar/Importar',
+                    exportDesc: 'Descarga todos tus borradores y configuraciones',
+                    importDesc: 'Carga borradores desde un archivo exportado',
+                    export: 'Exportar',
+                    import: 'Importar',
+                    selectFile: 'Seleccionar Archivo'
+                },
+                fr: {
+                    title: 'EasyDoc',
+                    subtitle: 'Créez des documents professionnels en quelques minutes. Choisissez parmi notre bibliothèque de modèles.',
+                    recentDocs: 'Documents Récents',
+                    tip: 'Astuce: Vous pouvez enregistrer des brouillons et revenir plus tard!',
+                    mostPopular: 'Modèles Les Plus Populaires',
+                    allTemplates: 'Tous Les Modèles',
+                    all: 'Tous',
+                    business: 'Affaires',
+                    personal: 'Personnel',
+                    legal: 'Juridique',
+                    educational: 'Éducatif',
+                    events: 'Événements',
+                    createDoc: 'Créer Document',
+                    howItWorks: 'Comment Ça Marche',
+                    step1: 'Choisir Modèle',
+                    step1desc: 'Parcourez notre bibliothèque et sélectionnez le document dont vous avez besoin',
+                    step2: 'Remplir Informations',
+                    step2desc: 'Entrez vos détails dans le formulaire facile à utiliser',
+                    step3: 'Télécharger PDF',
+                    step3desc: 'Obtenez votre document professionnel instantanément',
+                    backToTemplates: 'Retour aux Modèles',
+                    load: 'Charger',
+                    saveDraft: 'Enregistrer Brouillon',
+                    sampleData: 'Données Exemple',
+                    customizeColors: 'Personnalisez Vos Couleurs',
+                    chooseAccent: 'Choisissez une couleur d\'accentuation pour votre document',
+                    chooseStyle: 'Choisissez Votre Style',
+                    downloadPDF: 'Télécharger PDF',
+                    saveDraftTitle: 'Enregistrer Brouillon',
+                    enterName: 'Entrez le nom du brouillon...',
+                    save: 'Enregistrer',
+                    cancel: 'Annuler',
+                    loadDraftTitle: 'Charger Brouillon',
+                    noSavedDrafts: 'Aucun brouillon enregistré pour le moment',
+                    delete: 'Supprimer',
+                    close: 'Fermer',
+                    noDocs: 'Aucun document créé pour le moment',
+                    optional: 'Optionnel',
+                    required: 'Requis',
+                    remove: 'Retirer',
+                    add: 'Ajouter',
+                    search: 'Rechercher modèles...',
+                    previewTemplate: 'Aperçu',
+                    font: 'Police',
+                    exportData: 'Exporter Données',
+                    importData: 'Importer Données',
+                    darkMode: 'Mode Sombre',
+                    exportImport: 'Exporter/Importer',
+                    exportDesc: 'Téléchargez tous vos brouillons et paramètres',
+                    importDesc: 'Chargez des brouillons depuis un fichier exporté',
+                    export: 'Exporter',
+                    import: 'Importer',
+                    selectFile: 'Sélectionner Fichier'
+                }
+            };
+
+            const t = translations[language];
 
             // Load saved drafts on mount
             useEffect(() => {
@@ -212,7 +497,12 @@
                     desc: 'Create formal business or personal letters',
                     category: 'Personal',
                     featured: true,
+                    hasStyles: true,
+                    hasImages: true,
+                    imageFields: ['logo'],
+                    styles: ['classic', 'modern', 'minimal'],
                     fields: [
+                        { name: 'logo', label: 'Letterhead Logo (Optional)', type: 'image', help: 'Add your company or personal logo' },
                         { name: 'date', label: 'Date', type: 'date', req: true },
                         { name: 'senderName', label: 'Your Name', type: 'text', req: true },
                         { name: 'senderAddress', label: 'Your Address', type: 'textarea', req: true },
@@ -230,7 +520,12 @@
                     desc: 'Create achievement and completion certificates',
                     category: 'Educational',
                     featured: true,
+                    hasStyles: true,
+                    hasImages: true,
+                    imageFields: ['logo'],
+                    styles: ['classic', 'modern', 'creative'],
                     fields: [
+                        { name: 'logo', label: 'Organization Logo (Optional)', type: 'image', help: 'Add organization seal or logo' },
                         { name: 'recipientName', label: 'Recipient', type: 'text', req: true },
                         { name: 'achievement', label: 'Achievement', type: 'text', req: true },
                         { name: 'date', label: 'Date', type: 'date', req: true },
@@ -618,6 +913,60 @@
                 };
                 setDocumentHistory(prev => [historyItem, ...prev.slice(0, 9)]); // Keep last 10
             };
+
+            // Export all data
+            const exportAllData = () => {
+                const exportData = {
+                    drafts: savedDrafts,
+                    settings: {
+                        language,
+                        darkMode,
+                        accentColor,
+                        selectedFont
+                    },
+                    history: documentHistory,
+                    exportDate: new Date().toISOString()
+                };
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `easydoc_backup_${Date.now()}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+                alert('Data exported successfully!');
+            };
+
+            // Import data
+            const importData = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            if (importedData.drafts) {
+                                setSavedDrafts(prev => [...importedData.drafts, ...prev]);
+                            }
+                            if (importedData.settings) {
+                                setLanguage(importedData.settings.language || 'en');
+                                setDarkMode(importedData.settings.darkMode || false);
+                                setAccentColor(importedData.settings.accentColor || '#3498db');
+                                setSelectedFont(importedData.settings.selectedFont || 'helvetica');
+                            }
+                            if (importedData.history) {
+                                setDocumentHistory(prev => [...importedData.history, ...prev]);
+                            }
+                            alert('Data imported successfully!');
+                            setShowExportImport(false);
+                        } catch (error) {
+                            alert('Error importing data. Please check the file format.');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
             const fillSampleData = () => {
                 if (!confirm('This will replace your current data with sample data. Continue?')) return;
                 
@@ -698,6 +1047,14 @@
                 };
 
                 const styleConfig = applyStyle(selectedStyle);
+
+                // Apply font to document
+                const fontMap = {
+                    helvetica: 'helvetica',
+                    times: 'times',
+                    courier: 'courier'
+                };
+                doc.setFont(fontMap[selectedFont] || 'helvetica');
 
                 if (template.id === 'resume') {
                     if (selectedStyle === 'modern') {
@@ -1475,81 +1832,90 @@
                 };
 
                 return (
-                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-                        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
-                            <button onClick={() => { setView('home'); setTemplate(null); }} className="text-gray-600 hover:text-gray-800 mb-6 flex items-center gap-2">
-                                ← Back to Templates
+                    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-100'} p-6`}>
+                        <div className={`max-w-4xl mx-auto ${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-8`}>
+                            <button onClick={() => { setView('home'); setTemplate(null); }} className={`${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'} mb-6 flex items-center gap-2`}>
+                                ← {t.backToTemplates}
                             </button>
-                            <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                                 <div className="flex items-center gap-3">
                                     <span className="text-4xl">{template.icon}</span>
                                     <div>
-                                        <h2 className="text-2xl font-bold">{template.name}</h2>
-                                        <p className="text-sm text-gray-600">{template.desc}</p>
+                                        <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : ''}`}>{template.name}</h2>
+                                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{template.desc}</p>
                                     </div>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button onClick={() => setShowLoadModal(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium">
-                                        📂 Load
+                                <div className="flex gap-2 flex-wrap">
+                                    <button onClick={() => setShowLoadModal(true)} className={`px-4 py-2 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} rounded-lg text-sm font-medium`}>
+                                        📂 {t.load}
                                     </button>
                                     <button onClick={() => setShowSaveModal(true)} className="px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded-lg text-sm font-medium text-blue-700">
-                                        💾 Save Draft
+                                        💾 {t.saveDraft}
                                     </button>
                                     <button onClick={fillSampleData} className="px-4 py-2 bg-green-100 hover:bg-green-200 rounded-lg text-sm font-medium text-green-700">
-                                        ✨ Sample Data
+                                        ✨ {t.sampleData}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Color Picker */}
-                            <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
-                                <div className="flex items-center justify-between">
+                            {/* Font & Color Picker */}
+                            <div className={`mb-6 p-4 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-purple-50 to-pink-50'} rounded-lg`}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <h3 className="text-sm font-semibold mb-1">Customize Your Colors 🎨</h3>
-                                        <p className="text-xs text-gray-600">Choose an accent color for your document</p>
+                                        <h3 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.customizeColors} 🎨</h3>
+                                        <div className="flex items-center gap-3">
+                                            <input 
+                                                type="color" 
+                                                value={accentColor} 
+                                                onChange={(e) => setAccentColor(e.target.value)}
+                                                className="w-12 h-12 rounded cursor-pointer border-2 border-white shadow"
+                                            />
+                                            <div className="text-sm font-mono">{accentColor}</div>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <input 
-                                            type="color" 
-                                            value={accentColor} 
-                                            onChange={(e) => setAccentColor(e.target.value)}
-                                            className="w-12 h-12 rounded cursor-pointer border-2 border-white shadow"
-                                        />
-                                        <div className="text-sm font-mono">{accentColor}</div>
+                                    <div>
+                                        <h3 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.font} ✍️</h3>
+                                        <select
+                                            value={selectedFont}
+                                            onChange={(e) => setSelectedFont(e.target.value)}
+                                            className={`w-full px-4 py-2 ${darkMode ? 'bg-gray-600 text-white' : 'bg-white'} rounded-lg border ${darkMode ? 'border-gray-500' : 'border-gray-300'}`}
+                                        >
+                                            <option value="helvetica" style={{fontFamily: 'Helvetica, Arial, sans-serif'}}>Helvetica</option>
+                                            <option value="times" style={{fontFamily: 'Times, serif'}}>Times New Roman</option>
+                                            <option value="courier" style={{fontFamily: 'Courier, monospace'}}>Courier</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Style Selector */}
-                            {template.hasStyles && (
-                                <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-                                    <h3 className="text-lg font-semibold mb-4">Choose Your Style</h3>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {template.styles.map(style => (
-                                            <div
-                                                key={style}
-                                                onClick={() => setSelectedStyle(style)}
-                                                className={`cursor-pointer rounded-lg p-3 transition ${
-                                                    selectedStyle === style
-                                                        ? 'ring-2 ring-blue-500 bg-blue-50'
-                                                        : 'bg-white hover:shadow-md'
-                                                }`}
-                                            >
-                                                <div className="text-center mb-2">
-                                                    <span className="text-2xl">{styleVisuals[style].icon}</span>
-                                                    <p className="text-sm font-medium mt-1">{styleVisuals[style].name}</p>
-                                                </div>
-                                                {styleVisuals[style].preview}
+                            {/* Style Selector - Now available for ALL templates */}
+                            <div className={`mb-8 p-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg`}>
+                                <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : ''}`}>{t.chooseStyle}</h3>
+                                <div className="grid grid-cols-3 gap-4">
+                                    {(template.hasStyles ? template.styles : ['classic', 'modern', 'minimal']).map(style => (
+                                        <div
+                                            key={style}
+                                            onClick={() => setSelectedStyle(style)}
+                                            className={`cursor-pointer rounded-lg p-3 transition ${
+                                                selectedStyle === style
+                                                    ? 'ring-2 ring-blue-500 bg-blue-50'
+                                                    : 'bg-white hover:shadow-md'
+                                            }`}
+                                        >
+                                            <div className="text-center mb-2">
+                                                <span className="text-2xl">{styleVisuals[style]?.icon || '📄'}</span>
+                                                <p className="text-sm font-medium mt-1">{styleVisuals[style]?.name || style}</p>
                                             </div>
-                                        ))}
-                                    </div>
+                                            {styleVisuals[style]?.preview}
+                                        </div>
+                                    ))}
                                 </div>
-                            )}
+                            </div>
 
                             <div className="space-y-4">
                                 {template.fields.map(renderField)}
                                 <button onClick={generatePDF} className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 mt-6">
-                                    Download PDF
+                                    {t.downloadPDF}
                                 </button>
                             </div>
                         </div>
@@ -1558,20 +1924,20 @@
                         {showSaveModal && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-                                    <h3 className="text-xl font-bold mb-4">Save Draft</h3>
+                                    <h3 className="text-xl font-bold mb-4">{t.saveDraftTitle}</h3>
                                     <input
                                         type="text"
                                         value={draftName}
                                         onChange={(e) => setDraftName(e.target.value)}
-                                        placeholder="Enter draft name..."
+                                        placeholder={t.enterName}
                                         className="w-full px-4 py-2 border rounded-lg mb-4"
                                     />
                                     <div className="flex gap-2">
                                         <button onClick={saveDraft} className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">
-                                            Save
+                                            {t.save}
                                         </button>
                                         <button onClick={() => { setShowSaveModal(false); setDraftName(''); }} className="flex-1 bg-gray-200 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300">
-                                            Cancel
+                                            {t.cancel}
                                         </button>
                                     </div>
                                 </div>
@@ -1582,9 +1948,9 @@
                         {showLoadModal && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
-                                    <h3 className="text-xl font-bold mb-4">Load Draft</h3>
+                                    <h3 className="text-xl font-bold mb-4">{t.loadDraftTitle}</h3>
                                     {savedDrafts.length === 0 ? (
-                                        <p className="text-gray-500 text-center py-8">No saved drafts yet</p>
+                                        <p className="text-gray-500 text-center py-8">{t.noSavedDrafts}</p>
                                     ) : (
                                         <div className="space-y-2">
                                             {savedDrafts.map(draft => (
@@ -1595,10 +1961,10 @@
                                                     </div>
                                                     <div className="flex gap-2">
                                                         <button onClick={() => loadDraft(draft)} className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-                                                            Load
+                                                            {t.load}
                                                         </button>
                                                         <button onClick={() => deleteDraft(draft.id)} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
-                                                            Delete
+                                                            {t.delete}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -1606,7 +1972,7 @@
                                         </div>
                                     )}
                                     <button onClick={() => setShowLoadModal(false)} className="w-full mt-4 bg-gray-200 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300">
-                                        Close
+                                        {t.close}
                                     </button>
                                 </div>
                             </div>
@@ -1616,55 +1982,110 @@
             }
 
             const featuredTemplates = templates.filter(t => t.featured);
-            const filteredTemplates = selectedCategory === 'all' 
-                ? templates // Show ALL templates including featured ones
-                : templates.filter(t => t.category === selectedCategory); // Show all in category
+            
+            // Filter templates by search query and category
+            const filteredTemplates = templates.filter(t => {
+                const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                     t.desc.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
+                return matchesSearch && matchesCategory;
+            });
 
             return (
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+                <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-100'} p-6`}>
                     <div className="max-w-7xl mx-auto">
+                        {/* Top Bar */}
+                        <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => setDarkMode(!darkMode)}
+                                    className={`px-4 py-2 ${darkMode ? 'bg-gray-700' : 'bg-white'} rounded-lg shadow border ${darkMode ? 'border-gray-600' : 'border-gray-300'} font-medium`}
+                                >
+                                    {darkMode ? '☀️' : '🌙'} {t.darkMode}
+                                </button>
+                                <button 
+                                    onClick={() => setShowExportImport(true)}
+                                    className={`px-4 py-2 ${darkMode ? 'bg-gray-700' : 'bg-white'} rounded-lg shadow border ${darkMode ? 'border-gray-600' : 'border-gray-300'} font-medium`}
+                                >
+                                    💾 {t.exportImport}
+                                </button>
+                            </div>
+                            <select 
+                                value={language} 
+                                onChange={(e) => setLanguage(e.target.value)}
+                                className={`px-4 py-2 ${darkMode ? 'bg-gray-700' : 'bg-white'} rounded-lg shadow border ${darkMode ? 'border-gray-600' : 'border-gray-300'} font-medium`}
+                            >
+                                <option value="en">🇬🇧 English</option>
+                                <option value="pt">🇵🇹 Português</option>
+                                <option value="es">🇪🇸 Español</option>
+                                <option value="fr">🇫🇷 Français</option>
+                            </select>
+                        </div>
+
                         <div className="text-center mb-8">
-                            <h1 className="text-5xl font-bold text-gray-800 mb-4">EasyDoc</h1>
-                            <p className="text-gray-600 text-lg mb-4">Create professional documents in minutes. Choose from our library of templates.</p>
-                            <div className="flex gap-3 justify-center">
+                            <h1 className={`text-5xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-4`}>{t.title}</h1>
+                            <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} text-lg mb-4`}>{t.subtitle}</p>
+                            
+                            {/* Search Bar */}
+                            <div className="max-w-xl mx-auto mb-4">
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder={t.search}
+                                    className={`w-full px-6 py-3 ${darkMode ? 'bg-gray-700 text-white' : 'bg-white'} rounded-lg shadow-lg border ${darkMode ? 'border-gray-600' : 'border-gray-300'} text-lg`}
+                                />
+                            </div>
+
+                            <div className="flex gap-3 justify-center flex-wrap">
                                 <button 
                                     onClick={() => setShowHistory(true)}
-                                    className="px-6 py-2 bg-white rounded-lg shadow hover:shadow-lg transition font-medium text-gray-700"
+                                    className={`px-6 py-2 ${darkMode ? 'bg-gray-700' : 'bg-white'} rounded-lg shadow hover:shadow-lg transition font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}
                                 >
-                                    📊 Recent Documents ({documentHistory.length})
+                                    📊 {t.recentDocs} ({documentHistory.length})
                                 </button>
                                 {showTips && (
-                                    <div className="flex items-center gap-2 px-6 py-2 bg-blue-50 rounded-lg border border-blue-200">
-                                        <span className="text-sm text-blue-800">💡 <strong>Tip:</strong> You can save drafts and come back later!</span>
-                                        <button onClick={() => setShowTips(false)} className="text-blue-600 hover:text-blue-800">✕</button>
+                                    <div className={`flex items-center gap-2 px-6 py-2 ${darkMode ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-blue-200'} rounded-lg border`}>
+                                        <span className={`text-sm ${darkMode ? 'text-blue-200' : 'text-blue-800'}`}>💡 <strong>{t.tip.split(':')[0]}:</strong> {t.tip.split(':')[1]}</span>
+                                        <button onClick={() => setShowTips(false)} className={`${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}>✕</button>
                                     </div>
                                 )}
                             </div>
                         </div>
 
                         {/* Featured Templates */}
-                        <div className="mb-12">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                                <span className="text-yellow-500">⭐</span> Most Popular Templates
-                            </h2>
+                        {searchQuery === '' && (
+                            <div className="mb-12">
+                                <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-6 flex items-center gap-2`}>
+                                    <span className="text-yellow-500">⭐</span> {t.mostPopular}
+                                </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {featuredTemplates.map(t => (
-                                    <div key={t.id} onClick={() => selectTemplate(t)} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl cursor-pointer border-2 border-yellow-200 hover:border-yellow-400 transition transform hover:-translate-y-1">
-                                        <div className="text-center">
+                                    <div key={t.id} className={`${darkMode ? 'bg-gray-800 border-yellow-600' : 'bg-white border-yellow-200'} rounded-xl shadow-lg p-6 hover:shadow-2xl cursor-pointer border-2 hover:border-yellow-400 transition transform hover:-translate-y-1 relative`}>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); setShowPreview(t); }}
+                                            className="absolute top-2 right-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200"
+                                        >
+                                            👁️ {t.previewTemplate}
+                                        </button>
+                                        <div className="text-center" onClick={() => selectTemplate(t)}>
                                             <span className="text-5xl block mb-3">{t.icon}</span>
-                                            <h3 className="text-lg font-bold mb-2">{t.name}</h3>
-                                            <p className="text-gray-600 text-sm mb-4">{t.desc}</p>
-                                            <span className="text-blue-600 font-semibold text-sm">Create Document →</span>
+                                            <h3 className={`text-lg font-bold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.name}</h3>
+                                            <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} text-sm mb-4`}>{t.desc}</p>
+                                            <span className="text-blue-600 font-semibold text-sm">{t.createDoc} →</span>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
+                        )}
 
                         {/* All Templates Section */}
                         <div>
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold text-gray-800">All Templates</h2>
+                            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+                                <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                                    {searchQuery ? `${t.search.split('...')[0]} "${searchQuery}"` : t.allTemplates}
+                                </h2>
                                 <div className="flex gap-2 flex-wrap">
                                     {categories.map(cat => (
                                         <button
@@ -1673,57 +2094,68 @@
                                             className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                                                 selectedCategory === cat
                                                     ? 'bg-blue-600 text-white'
-                                                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                                                    : darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100'
                                             }`}
                                         >
-                                            {cat === 'all' ? 'All' : cat}
+                                            {t[cat.toLowerCase()] || cat}
                                         </button>
                                     ))}
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {filteredTemplates.map(t => (
-                                    <div key={t.id} onClick={() => selectTemplate(t)} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl cursor-pointer border-2 border-transparent hover:border-blue-300 transition">
-                                        <div className="flex items-start gap-4">
+                                    <div key={t.id} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6 hover:shadow-xl cursor-pointer border-2 ${darkMode ? 'border-gray-700 hover:border-blue-500' : 'border-transparent hover:border-blue-300'} transition relative`}>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); setShowPreview(t); }}
+                                            className="absolute top-2 right-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200"
+                                        >
+                                            👁️
+                                        </button>
+                                        <div className="flex items-start gap-4" onClick={() => selectTemplate(t)}>
                                             <span className="text-4xl">{t.icon}</span>
                                             <div className="flex-1">
                                                 <div className="flex items-start justify-between mb-2">
-                                                    <h3 className="text-lg font-bold">{t.name}</h3>
-                                                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">{t.category}</span>
+                                                    <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : ''}`}>{t.name}</h3>
+                                                    <span className={`text-xs ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} px-2 py-1 rounded`}>{t.category}</span>
                                                 </div>
-                                                <p className="text-gray-600 text-sm mb-3">{t.desc}</p>
-                                                <span className="text-blue-600 font-semibold text-sm">Create →</span>
+                                                <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} text-sm mb-3`}>{t.desc}</p>
+                                                <span className="text-blue-600 font-semibold text-sm">{t.createDoc} →</span>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
+                            {filteredTemplates.length === 0 && (
+                                <div className="text-center py-12">
+                                    <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} text-lg`}>No templates found matching "{searchQuery}"</p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Footer Info */}
                         <div className="mt-16 bg-white rounded-xl shadow-lg p-8">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">How It Works</h2>
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">{t.howItWorks}</h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                 <div className="text-center">
                                     <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <span className="text-3xl">1️⃣</span>
                                     </div>
-                                    <h3 className="font-semibold text-gray-800 mb-2">Choose Template</h3>
-                                    <p className="text-gray-600 text-sm">Browse our library and select the document you need</p>
+                                    <h3 className="font-semibold text-gray-800 mb-2">{t.step1}</h3>
+                                    <p className="text-gray-600 text-sm">{t.step1desc}</p>
                                 </div>
                                 <div className="text-center">
                                     <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <span className="text-3xl">2️⃣</span>
                                     </div>
-                                    <h3 className="font-semibold text-gray-800 mb-2">Fill Information</h3>
-                                    <p className="text-gray-600 text-sm">Enter your details in the easy-to-use form</p>
+                                    <h3 className="font-semibold text-gray-800 mb-2">{t.step2}</h3>
+                                    <p className="text-gray-600 text-sm">{t.step2desc}</p>
                                 </div>
                                 <div className="text-center">
                                     <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <span className="text-3xl">3️⃣</span>
                                     </div>
-                                    <h3 className="font-semibold text-gray-800 mb-2">Download PDF</h3>
-                                    <p className="text-gray-600 text-sm">Get your professional document instantly</p>
+                                    <h3 className="font-semibold text-gray-800 mb-2">{t.step3}</h3>
+                                    <p className="text-gray-600 text-sm">{t.step3desc}</p>
                                 </div>
                             </div>
                         </div>
@@ -1732,24 +2164,97 @@
                     {/* Document History Modal */}
                     {showHistory && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
-                                <h3 className="text-xl font-bold mb-4">Recent Documents</h3>
+                            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto`}>
+                                <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-white' : ''}`}>{t.recentDocs}</h3>
                                 {documentHistory.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-8">No documents created yet</p>
+                                    <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'} text-center py-8`}>{t.noDocs}</p>
                                 ) : (
                                     <div className="space-y-2">
                                         {documentHistory.map(item => (
-                                            <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                            <div key={item.id} className={`flex items-center justify-between p-3 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg`}>
                                                 <div>
-                                                    <div className="font-semibold">{item.templateName}</div>
-                                                    <div className="text-sm text-gray-600">{item.date}</div>
+                                                    <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{item.templateName}</div>
+                                                    <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.date}</div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
-                                <button onClick={() => setShowHistory(false)} className="w-full mt-4 bg-gray-200 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300">
-                                    Close
+                                <button onClick={() => setShowHistory(false)} className={`w-full mt-4 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} px-4 py-2 rounded-lg font-semibold`}>
+                                    {t.close}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Preview Modal */}
+                    {showPreview && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 max-w-3xl w-full max-h-96 overflow-y-auto`}>
+                                <div className="flex items-start justify-between mb-4">
+                                    <div>
+                                        <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : ''}`}>{showPreview.icon} {showPreview.name}</h3>
+                                        <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-2`}>{showPreview.desc}</p>
+                                    </div>
+                                    <button onClick={() => setShowPreview(null)} className={`text-2xl ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-800'}`}>✕</button>
+                                </div>
+                                <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-50'} p-4 rounded-lg mb-4`}>
+                                    <h4 className={`font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>Fields in this template:</h4>
+                                    <ul className="grid grid-cols-2 gap-2">
+                                        {showPreview.fields.filter(f => f.type !== 'image').slice(0, 8).map(field => (
+                                            <li key={field.name} className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                ✓ {field.label}
+                                            </li>
+                                        ))}
+                                        {showPreview.fields.length > 8 && (
+                                            <li className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} italic`}>
+                                                + {showPreview.fields.length - 8} more...
+                                            </li>
+                                        )}
+                                    </ul>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button 
+                                        onClick={() => { selectTemplate(showPreview); setShowPreview(null); }}
+                                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
+                                    >
+                                        {t.createDoc}
+                                    </button>
+                                    <button onClick={() => setShowPreview(null)} className={`${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} px-6 py-3 rounded-lg font-semibold`}>
+                                        {t.close}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Export/Import Modal */}
+                    {showExportImport && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 max-w-md w-full`}>
+                                <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-white' : ''}`}>{t.exportImport}</h3>
+                                <div className="space-y-4">
+                                    <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-50'} p-4 rounded-lg`}>
+                                        <h4 className={`font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.exportData}</h4>
+                                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-3`}>{t.exportDesc}</p>
+                                        <button 
+                                            onClick={exportAllData}
+                                            className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700"
+                                        >
+                                            📥 {t.export}
+                                        </button>
+                                    </div>
+                                    <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-50'} p-4 rounded-lg`}>
+                                        <h4 className={`font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.importData}</h4>
+                                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-3`}>{t.importDesc}</p>
+                                        <label className="w-full bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 cursor-pointer block text-center">
+                                            📤 {t.selectFile}
+                                            <input type="file" accept=".json" onChange={importData} className="hidden" />
+                                        </label>
+                                    </div>
+                                </div>
+                                <button onClick={() => setShowExportImport(false)} className={`w-full mt-4 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} px-4 py-2 rounded-lg font-semibold`}>
+                                    {t.close}
                                 </button>
                             </div>
                         </div>
