@@ -1,40 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyDoc - Universal Document Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        body.dark-mode {
-            background-color: #1a202c;
-            color: #e2e8f0;
-        }
-        .dark-mode .bg-white {
-            background-color: #2d3748 !important;
-            color: #e2e8f0 !important;
-        }
-        .dark-mode .text-gray-800 {
-            color: #e2e8f0 !important;
-        }
-        .dark-mode .text-gray-600 {
-            color: #cbd5e0 !important;
-        }
-        .dark-mode .bg-gray-50 {
-            background-color: #374151 !important;
-        }
-        .dark-mode .border-gray-300 {
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EasyDoc – Universal Document Generator</title>
+
+<!-- React -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+<!-- Babel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    transition: background-color 0.3s, color 0.3s;
+}
+body.dark-mode {
+    background-color: #1a202c;
+    color: #e2e8f0;
+}
+.dark-mode .bg-white {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+    background-color: #374151 !important;
+    color: #e2e8f0 !important;
+    border-color: #4a5568 !important;
+}
+</style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+const { jsPDF } = window.jspdf;
+
+/* -------------------- TRANSLATIONS -------------------- */
+const translations = {
+    en: {
+        title: "EasyDoc",
+        subtitle: "Create professional documents in minutes",
+        create: "Create Document",
+        back: "Back",
+        download: "Download PDF",
+        darkMode: "Dark Mode",
+        language: "Language",
+        noTemplate: "Select a template to begin",
+    },
+    pt: {
+        title: "EasyDoc",
+        subtitle: "Crie documentos profissionais em minutos",
+        create: "Criar Documento",
+        back: "Voltar",
+        download: "Baixar PDF",
+        darkMode: "Modo Escuro",
+        language: "Idioma",
+        noTemplate: "Selecione um modelo para começar",
+    },
+    es: {
+        title: "EasyDoc",
+        subtitle: "Crea documentos profesionales en minutos",
+        create: "Crear Documento",
+        back: "Volver",
+        download: "Descargar PDF",
+        darkMode: "Modo Oscuro",
+        language: "Idioma",
+        noTemplate: "Seleccione una plantilla para comenzar",
+    },
+    fr: {
+        title: "EasyDoc",
+        subtitle: "Créez des documents professionnels en minutes",
+        create: "Créer Document",
+        back: "Retour",
+        download: "Télécharger PDF",
+        darkMode: "Mode Sombre",
+        language: "Langue",
+        noTemplate: "Sélectionnez un modèle pour commencer",
+    },
+};
+
+/* -------------------- TEMPLATES -------------------- */
+const templates = [
+    {
+        id: "resume",
+        name: "Professional Resume",
+        fields: [
+            { name: "name", label: "Full Name" },
+            { name: "email", label: "Email" },
+            { name: "summary", label: "Summary", type: "textarea" },
+        ],
+    },
+    {
+        id: "invoice",
+        name: "Business Invoice",
+        fields: [
+            { name: "client", label: "Client Name" },
+            { name: "amount", label: "Amount" },
+            { name: "notes", label: "Notes", type: "textarea" },
+        ],
+    },
+    {
+        id: "letter",
+        name: "Formal Letter",
+        fields: [
+            { name: "recipient", label: "Recipient" },
+            { name: "body", label: "Letter Body", type: "textarea" },
+        ],
+    },
+];
+
+/* -------------------- APP -------------------- */
+function App() {
+    const [language, setLanguage] = useState("en");
+    const [darkMode, setDarkMode] = useState(false);
+    const [template, setTemplate] = useState(null);
+    const [data, setData] = useState({});
+
+    const t = translations[language];
+
+    useEffect(() => {
+        const saved = localStorage.getItem("easydoc_darkmode");
+        if (saved) setDarkMode(saved === "true");
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("easydoc_darkmode", darkMode);
+        document.body.classList.toggle("dark-mode", darkMode);
+    }, [darkMode]);
+
+    function updateField(name, value) {
+        setData({ ...data, [name]: value });
+    }
+
+    function generatePDF() {
+        const doc = new jsPDF();
+        let y = 20;
+
+        doc.setFontSize(18);
+        doc.text(template.name, 20, y);
+        y += 10;
+
+        doc.setFontSize(12);
+        Object.entries(data).forEach(([key, value]) => {
+            doc.text(`${key}: ${value}`, 20, y);
+            y += 8;
+        });
+
+        doc.save(`${template.id}.pdf`);
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-50 p-6">
+            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-6 space-y-6">
+
+                <header className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold">{t.title}</h1>
+                        <p className="text-gray-600">{t.subtitle}</p>
+                    </div>
+
+                    <div className="flex gap-2">
+                        <select
+                            className="border rounded px-2 py-1"
+                            value={language}
+                            onChange={e => setLanguage(e.target.value)}
+                        >
+                            <option value="en">EN</option>
+                            <option value="pt">PT</option>
+                            <option value="es">ES</option>
+                            <option value="fr">FR</option>
+                        </select>
+
+                        <button
+                            className="border rounded px-3"
+                            onClick={() => setDarkMode(!darkMode)}
+                        >
+                            🌙
+                        </button>
+                    </div>
+                </header>
+
+                {!template && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {templates.map(tpl => (
+                            <button
+                                key={tpl.id}
+                                onClick={() => {
+                                    setTemplate(tpl);
+                                    setData({});
+                                }}
+                                className="border rounded p-4 hover:bg-gray-100"
+                            >
+                                {tpl.name}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {template && (
+                    <div className="space-y-4">
+                        <button
+                            className="text-sm underline"
+                            onClick={() => setTemplate(null)}
+                        >
+                            ← {t.back}
+                        </button>
+
+                        {template.fields.map(f => (
+                            <div key={f.name}>
+                                <label className="block text-sm font-medium mb-1">
+                                    {f.label}
+                                </label>
+                                {f.type === "textarea" ? (
+                                    <textarea
+                                        className="w-full border rounded p-2"
+                                        value={data[f.name] || ""}
+                                        onChange={e => updateField(f.name, e.target.value)}
+                                    />
+                                ) : (
+                                    <input
+                                        className="w-full border rounded p-2"
+                                        value={data[f.name] || ""}
+                                        onChange={e => updateField(f.name, e.target.value)}
+                                    />
+                                )}
+                            </div>
+                        ))}
+
+                        <button
+                            onClick={generatePDF}
+                            className="bg-blue-600 text-white px-4 py-2 rounded"
+                        >
+                            {t.download}
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>        .dark-mode .border-gray-300 {
             border-color: #4a5568 !important;
         }
         .dark-mode input, .dark-mode textarea, .dark-mode select {
@@ -2267,3 +2490,4 @@
     </script>
 </body>
 </html>
+
