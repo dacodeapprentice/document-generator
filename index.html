@@ -1,263 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>EasyDoc – Universal Document Generator</title>
-
-<!-- React -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-
-<!-- Babel -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-
-<!-- jsPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<!-- Tailwind -->
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-body {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-    transition: background-color 0.3s, color 0.3s;
-}
-body.dark-mode {
-    background-color: #1a202c;
-    color: #e2e8f0;
-}
-.dark-mode .bg-white {
-    background-color: #2d3748 !important;
-    color: #e2e8f0 !important;
-}
-.dark-mode input,
-.dark-mode textarea,
-.dark-mode select {
-    background-color: #374151 !important;
-    color: #e2e8f0 !important;
-    border-color: #4a5568 !important;
-}
-</style>
-</head>
-
-<body>
-<div id="root"></div>
-
-<script type="text/babel">
-const { useState, useEffect } = React;
-const { jsPDF } = window.jspdf;
-
-/* -------------------- TRANSLATIONS -------------------- */
-const translations = {
-    en: {
-        title: "EasyDoc",
-        subtitle: "Create professional documents in minutes",
-        create: "Create Document",
-        back: "Back",
-        download: "Download PDF",
-        darkMode: "Dark Mode",
-        language: "Language",
-        noTemplate: "Select a template to begin",
-    },
-    pt: {
-        title: "EasyDoc",
-        subtitle: "Crie documentos profissionais em minutos",
-        create: "Criar Documento",
-        back: "Voltar",
-        download: "Baixar PDF",
-        darkMode: "Modo Escuro",
-        language: "Idioma",
-        noTemplate: "Selecione um modelo para começar",
-    },
-    es: {
-        title: "EasyDoc",
-        subtitle: "Crea documentos profesionales en minutos",
-        create: "Crear Documento",
-        back: "Volver",
-        download: "Descargar PDF",
-        darkMode: "Modo Oscuro",
-        language: "Idioma",
-        noTemplate: "Seleccione una plantilla para comenzar",
-    },
-    fr: {
-        title: "EasyDoc",
-        subtitle: "Créez des documents professionnels en minutes",
-        create: "Créer Document",
-        back: "Retour",
-        download: "Télécharger PDF",
-        darkMode: "Mode Sombre",
-        language: "Langue",
-        noTemplate: "Sélectionnez un modèle pour commencer",
-    },
-};
-
-/* -------------------- TEMPLATES -------------------- */
-const templates = [
-    {
-        id: "resume",
-        name: "Professional Resume",
-        fields: [
-            { name: "name", label: "Full Name" },
-            { name: "email", label: "Email" },
-            { name: "summary", label: "Summary", type: "textarea" },
-        ],
-    },
-    {
-        id: "invoice",
-        name: "Business Invoice",
-        fields: [
-            { name: "client", label: "Client Name" },
-            { name: "amount", label: "Amount" },
-            { name: "notes", label: "Notes", type: "textarea" },
-        ],
-    },
-    {
-        id: "letter",
-        name: "Formal Letter",
-        fields: [
-            { name: "recipient", label: "Recipient" },
-            { name: "body", label: "Letter Body", type: "textarea" },
-        ],
-    },
-];
-
-/* -------------------- APP -------------------- */
-function App() {
-    const [language, setLanguage] = useState("en");
-    const [darkMode, setDarkMode] = useState(false);
-    const [template, setTemplate] = useState(null);
-    const [data, setData] = useState({});
-
-    const t = translations[language];
-
-    useEffect(() => {
-        const saved = localStorage.getItem("easydoc_darkmode");
-        if (saved) setDarkMode(saved === "true");
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem("easydoc_darkmode", darkMode);
-        document.body.classList.toggle("dark-mode", darkMode);
-    }, [darkMode]);
-
-    function updateField(name, value) {
-        setData({ ...data, [name]: value });
-    }
-
-    function generatePDF() {
-        const doc = new jsPDF();
-        let y = 20;
-
-        doc.setFontSize(18);
-        doc.text(template.name, 20, y);
-        y += 10;
-
-        doc.setFontSize(12);
-        Object.entries(data).forEach(([key, value]) => {
-            doc.text(`${key}: ${value}`, 20, y);
-            y += 8;
-        });
-
-        doc.save(`${template.id}.pdf`);
-    }
-
-    return (
-        <div className="min-h-screen bg-gray-50 p-6">
-            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-6 space-y-6">
-
-                <header className="flex justify-between items-center">
-                    <div>
-                        <h1 className="text-3xl font-bold">{t.title}</h1>
-                        <p className="text-gray-600">{t.subtitle}</p>
-                    </div>
-
-                    <div className="flex gap-2">
-                        <select
-                            className="border rounded px-2 py-1"
-                            value={language}
-                            onChange={e => setLanguage(e.target.value)}
-                        >
-                            <option value="en">EN</option>
-                            <option value="pt">PT</option>
-                            <option value="es">ES</option>
-                            <option value="fr">FR</option>
-                        </select>
-
-                        <button
-                            className="border rounded px-3"
-                            onClick={() => setDarkMode(!darkMode)}
-                        >
-                            🌙
-                        </button>
-                    </div>
-                </header>
-
-                {!template && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {templates.map(tpl => (
-                            <button
-                                key={tpl.id}
-                                onClick={() => {
-                                    setTemplate(tpl);
-                                    setData({});
-                                }}
-                                className="border rounded p-4 hover:bg-gray-100"
-                            >
-                                {tpl.name}
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-                {template && (
-                    <div className="space-y-4">
-                        <button
-                            className="text-sm underline"
-                            onClick={() => setTemplate(null)}
-                        >
-                            ← {t.back}
-                        </button>
-
-                        {template.fields.map(f => (
-                            <div key={f.name}>
-                                <label className="block text-sm font-medium mb-1">
-                                    {f.label}
-                                </label>
-                                {f.type === "textarea" ? (
-                                    <textarea
-                                        className="w-full border rounded p-2"
-                                        value={data[f.name] || ""}
-                                        onChange={e => updateField(f.name, e.target.value)}
-                                    />
-                                ) : (
-                                    <input
-                                        className="w-full border rounded p-2"
-                                        value={data[f.name] || ""}
-                                        onChange={e => updateField(f.name, e.target.value)}
-                                    />
-                                )}
-                            </div>
-                        ))}
-
-                        <button
-                            onClick={generatePDF}
-                            className="bg-blue-600 text-white px-4 py-2 rounded"
-                        >
-                            {t.download}
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-</script>
-</body>
-</html>        .dark-mode .border-gray-300 {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyDoc - Universal Document Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark-mode .bg-white {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+        }
+        .dark-mode .text-gray-800 {
+            color: #e2e8f0 !important;
+        }
+        .dark-mode .text-gray-600 {
+            color: #cbd5e0 !important;
+        }
+        .dark-mode .bg-gray-50 {
+            background-color: #374151 !important;
+        }
+        .dark-mode .border-gray-300 {
             border-color: #4a5568 !important;
         }
         .dark-mode input, .dark-mode textarea, .dark-mode select {
@@ -291,7 +68,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
             const [searchQuery, setSearchQuery] = useState('');
             const [selectedFont, setSelectedFont] = useState('helvetica');
             const [darkMode, setDarkMode] = useState(false);
-            const [showPreview, setShowPreview] = useState(null);
             const [showExportImport, setShowExportImport] = useState(false);
 
             // Load dark mode preference
@@ -357,7 +133,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                     remove: 'Remove',
                     add: 'Add',
                     search: 'Search templates...',
-                    previewTemplate: 'Preview Template',
                     font: 'Font',
                     exportData: 'Export Data',
                     importData: 'Import Data',
@@ -367,7 +142,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                     importDesc: 'Load drafts from an exported file',
                     export: 'Export',
                     import: 'Import',
-                    selectFile: 'Select File'
+                    selectFile: 'Select File',
+                    editingOptions: 'Document Editing Options',
+                    editingDesc: 'Customize the appearance and style of your document',
+                    documentContent: 'Document Content',
+                    contentDesc: 'Fill in your information below'
                 },
                 pt: {
                     title: 'EasyDoc',
@@ -410,10 +189,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                     optional: 'Opcional',
                     required: 'Obrigatório',
                     remove: 'Remover',
-                    add: 'Adicionar'
                     add: 'Adicionar',
                     search: 'Pesquisar modelos...',
-                    previewTemplate: 'Visualizar Modelo',
                     font: 'Fonte',
                     exportData: 'Exportar Dados',
                     importData: 'Importar Dados',
@@ -423,7 +200,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                     importDesc: 'Carregue rascunhos de um arquivo exportado',
                     export: 'Exportar',
                     import: 'Importar',
-                    selectFile: 'Selecionar Arquivo'
+                    selectFile: 'Selecionar Arquivo',
+                    editingOptions: 'Opções de Edição do Documento',
+                    editingDesc: 'Personalize a aparência e estilo do seu documento',
+                    documentContent: 'Conteúdo do Documento',
+                    contentDesc: 'Preencha suas informações abaixo'
                 },
                 es: {
                     title: 'EasyDoc',
@@ -468,7 +249,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                     remove: 'Eliminar',
                     add: 'Agregar',
                     search: 'Buscar plantillas...',
-                    previewTemplate: 'Vista Previa',
                     font: 'Fuente',
                     exportData: 'Exportar Datos',
                     importData: 'Importar Datos',
@@ -478,7 +258,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                     importDesc: 'Carga borradores desde un archivo exportado',
                     export: 'Exportar',
                     import: 'Importar',
-                    selectFile: 'Seleccionar Archivo'
+                    selectFile: 'Seleccionar Archivo',
+                    editingOptions: 'Opciones de Edición del Documento',
+                    editingDesc: 'Personaliza la apariencia y estilo de tu documento',
+                    documentContent: 'Contenido del Documento',
+                    contentDesc: 'Completa tu información abajo'
                 },
                 fr: {
                     title: 'EasyDoc',
@@ -523,7 +307,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                     remove: 'Retirer',
                     add: 'Ajouter',
                     search: 'Rechercher modèles...',
-                    previewTemplate: 'Aperçu',
                     font: 'Police',
                     exportData: 'Exporter Données',
                     importData: 'Importer Données',
@@ -533,7 +316,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                     importDesc: 'Chargez des brouillons depuis un fichier exporté',
                     export: 'Exporter',
                     import: 'Importer',
-                    selectFile: 'Sélectionner Fichier'
+                    selectFile: 'Sélectionner Fichier',
+                    editingOptions: 'Options d\'Édition du Document',
+                    editingDesc: 'Personnalisez l\'apparence et le style de votre document',
+                    documentContent: 'Contenu du Document',
+                    contentDesc: 'Remplissez vos informations ci-dessous'
                 }
             };
 
@@ -2081,11 +1868,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                                 </div>
                             </div>
 
-                            {/* Font & Color Picker */}
-                            <div className={`mb-6 p-4 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-purple-50 to-pink-50'} rounded-lg`}>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* SECTION 1: EDITING OPTIONS */}
+                            <div className={`mb-8 p-6 ${darkMode ? 'bg-gray-700' : 'bg-blue-50'} rounded-xl border-2 ${darkMode ? 'border-blue-800' : 'border-blue-200'}`}>
+                                <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-2`}>
+                                    🎨 {t.editingOptions}
+                                </h3>
+                                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-6`}>{t.editingDesc}</p>
+
+                                {/* Font & Color Picker */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                     <div>
-                                        <h3 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.customizeColors} 🎨</h3>
+                                        <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.customizeColors}</h4>
                                         <div className="flex items-center gap-3">
                                             <input 
                                                 type="color" 
@@ -2097,7 +1890,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.font} ✍️</h3>
+                                        <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.font}</h4>
                                         <select
                                             value={selectedFont}
                                             onChange={(e) => setSelectedFont(e.target.value)}
@@ -2109,38 +1902,48 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                                         </select>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Style Selector - Now available for ALL templates */}
-                            <div className={`mb-8 p-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg`}>
-                                <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : ''}`}>{t.chooseStyle}</h3>
-                                <div className="grid grid-cols-3 gap-4">
-                                    {(template.hasStyles ? template.styles : ['classic', 'modern', 'minimal']).map(style => (
-                                        <div
-                                            key={style}
-                                            onClick={() => setSelectedStyle(style)}
-                                            className={`cursor-pointer rounded-lg p-3 transition ${
-                                                selectedStyle === style
-                                                    ? 'ring-2 ring-blue-500 bg-blue-50'
-                                                    : 'bg-white hover:shadow-md'
-                                            }`}
-                                        >
-                                            <div className="text-center mb-2">
-                                                <span className="text-2xl">{styleVisuals[style]?.icon || '📄'}</span>
-                                                <p className="text-sm font-medium mt-1">{styleVisuals[style]?.name || style}</p>
+                                {/* Style Selector */}
+                                <div>
+                                    <h4 className={`text-sm font-semibold mb-4 ${darkMode ? 'text-white' : ''}`}>{t.chooseStyle}</h4>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {(template.hasStyles ? template.styles : ['classic', 'modern', 'minimal']).map(style => (
+                                            <div
+                                                key={style}
+                                                onClick={() => setSelectedStyle(style)}
+                                                className={`cursor-pointer rounded-lg p-3 transition ${
+                                                    selectedStyle === style
+                                                        ? 'ring-2 ring-blue-500 bg-blue-50'
+                                                        : darkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-white hover:shadow-md'
+                                                }`}
+                                            >
+                                                <div className="text-center mb-2">
+                                                    <span className="text-2xl">{styleVisuals[style]?.icon || '📄'}</span>
+                                                    <p className="text-sm font-medium mt-1">{styleVisuals[style]?.name || style}</p>
+                                                </div>
+                                                {styleVisuals[style]?.preview}
                                             </div>
-                                            {styleVisuals[style]?.preview}
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                {template.fields.map(renderField)}
-                                <button onClick={generatePDF} className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 mt-6">
-                                    {t.downloadPDF}
-                                </button>
+                            {/* SECTION 2: DOCUMENT CONTENT */}
+                            <div className={`p-6 ${darkMode ? 'bg-gray-700' : 'bg-green-50'} rounded-xl border-2 ${darkMode ? 'border-green-800' : 'border-green-200'}`}>
+                                <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-2`}>
+                                    📝 {t.documentContent}
+                                </h3>
+                                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-6`}>{t.contentDesc}</p>
+
+                                <div className="space-y-4">
+                                    {template.fields.map(renderField)}
+                                </div>
                             </div>
+
+                            {/* Download Button */}
+                            <button onClick={generatePDF} className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 mt-6 text-lg">
+                                {t.downloadPDF}
+                            </button>
                         </div>
 
                         {/* Save Modal */}
@@ -2284,14 +2087,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                                 </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {featuredTemplates.map(t => (
-                                    <div key={t.id} className={`${darkMode ? 'bg-gray-800 border-yellow-600' : 'bg-white border-yellow-200'} rounded-xl shadow-lg p-6 hover:shadow-2xl cursor-pointer border-2 hover:border-yellow-400 transition transform hover:-translate-y-1 relative`}>
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); setShowPreview(t); }}
-                                            className="absolute top-2 right-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200"
-                                        >
-                                            👁️ {t.previewTemplate}
-                                        </button>
-                                        <div className="text-center" onClick={() => selectTemplate(t)}>
+                                    <div key={t.id} onClick={() => selectTemplate(t)} className={`${darkMode ? 'bg-gray-800 border-yellow-600' : 'bg-white border-yellow-200'} rounded-xl shadow-lg p-6 hover:shadow-2xl cursor-pointer border-2 hover:border-yellow-400 transition transform hover:-translate-y-1`}>
+                                        <div className="text-center">
                                             <span className="text-5xl block mb-3">{t.icon}</span>
                                             <h3 className={`text-lg font-bold mb-2 ${darkMode ? 'text-white' : ''}`}>{t.name}</h3>
                                             <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} text-sm mb-4`}>{t.desc}</p>
@@ -2327,14 +2124,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {filteredTemplates.map(t => (
-                                    <div key={t.id} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6 hover:shadow-xl cursor-pointer border-2 ${darkMode ? 'border-gray-700 hover:border-blue-500' : 'border-transparent hover:border-blue-300'} transition relative`}>
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); setShowPreview(t); }}
-                                            className="absolute top-2 right-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200"
-                                        >
-                                            👁️
-                                        </button>
-                                        <div className="flex items-start gap-4" onClick={() => selectTemplate(t)}>
+                                    <div key={t.id} onClick={() => selectTemplate(t)} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6 hover:shadow-xl cursor-pointer border-2 ${darkMode ? 'border-gray-700 hover:border-blue-500' : 'border-transparent hover:border-blue-300'} transition`}>
+                                        <div className="flex items-start gap-4">
                                             <span className="text-4xl">{t.icon}</span>
                                             <div className="flex-1">
                                                 <div className="flex items-start justify-between mb-2">
@@ -2410,47 +2201,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
                         </div>
                     )}
 
-                    {/* Preview Modal */}
-                    {showPreview && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 max-w-3xl w-full max-h-96 overflow-y-auto`}>
-                                <div className="flex items-start justify-between mb-4">
-                                    <div>
-                                        <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : ''}`}>{showPreview.icon} {showPreview.name}</h3>
-                                        <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-2`}>{showPreview.desc}</p>
-                                    </div>
-                                    <button onClick={() => setShowPreview(null)} className={`text-2xl ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-800'}`}>✕</button>
-                                </div>
-                                <div className={`${darkMode ? 'bg-gray-700' : 'bg-gray-50'} p-4 rounded-lg mb-4`}>
-                                    <h4 className={`font-semibold mb-2 ${darkMode ? 'text-white' : ''}`}>Fields in this template:</h4>
-                                    <ul className="grid grid-cols-2 gap-2">
-                                        {showPreview.fields.filter(f => f.type !== 'image').slice(0, 8).map(field => (
-                                            <li key={field.name} className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                ✓ {field.label}
-                                            </li>
-                                        ))}
-                                        {showPreview.fields.length > 8 && (
-                                            <li className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} italic`}>
-                                                + {showPreview.fields.length - 8} more...
-                                            </li>
-                                        )}
-                                    </ul>
-                                </div>
-                                <div className="flex gap-3">
-                                    <button 
-                                        onClick={() => { selectTemplate(showPreview); setShowPreview(null); }}
-                                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
-                                    >
-                                        {t.createDoc}
-                                    </button>
-                                    <button onClick={() => setShowPreview(null)} className={`${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} px-6 py-3 rounded-lg font-semibold`}>
-                                        {t.close}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Export/Import Modal */}
                     {showExportImport && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -2490,4 +2240,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
     </script>
 </body>
 </html>
-
