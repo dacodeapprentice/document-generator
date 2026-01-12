@@ -69,6 +69,9 @@
             const [selectedFont, setSelectedFont] = useState('helvetica');
             const [darkMode, setDarkMode] = useState(false);
             const [showExportImport, setShowExportImport] = useState(false);
+            const [selectedLayout, setSelectedLayout] = useState('layout1');
+            const [showAddContent, setShowAddContent] = useState(false);
+            const [additionalSections, setAdditionalSections] = useState([]);
 
             // Load dark mode preference
             useEffect(() => {
@@ -146,7 +149,13 @@
                     editingOptions: 'Document Editing Options',
                     editingDesc: 'Customize the appearance and style of your document',
                     documentContent: 'Document Content',
-                    contentDesc: 'Fill in your information below'
+                    contentDesc: 'Fill in your information below',
+                    chooseLayout: 'Choose Content Layout',
+                    layoutDesc: 'Select how your content is organized on the page',
+                    addOptionalContent: 'Add Optional Content',
+                    optionalSections: 'Optional Sections',
+                    addSection: 'Add Section',
+                    removeSection: 'Remove Section'
                 },
                 pt: {
                     title: 'EasyDoc',
@@ -204,7 +213,13 @@
                     editingOptions: 'Opções de Edição do Documento',
                     editingDesc: 'Personalize a aparência e estilo do seu documento',
                     documentContent: 'Conteúdo do Documento',
-                    contentDesc: 'Preencha suas informações abaixo'
+                    contentDesc: 'Preencha suas informações abaixo',
+                    chooseLayout: 'Escolher Layout do Conteúdo',
+                    layoutDesc: 'Selecione como seu conteúdo é organizado na página',
+                    addOptionalContent: 'Adicionar Conteúdo Opcional',
+                    optionalSections: 'Seções Opcionais',
+                    addSection: 'Adicionar Seção',
+                    removeSection: 'Remover Seção'
                 },
                 es: {
                     title: 'EasyDoc',
@@ -262,7 +277,13 @@
                     editingOptions: 'Opciones de Edición del Documento',
                     editingDesc: 'Personaliza la apariencia y estilo de tu documento',
                     documentContent: 'Contenido del Documento',
-                    contentDesc: 'Completa tu información abajo'
+                    contentDesc: 'Completa tu información abajo',
+                    chooseLayout: 'Elegir Diseño del Contenido',
+                    layoutDesc: 'Selecciona cómo se organiza tu contenido en la página',
+                    addOptionalContent: 'Agregar Contenido Opcional',
+                    optionalSections: 'Secciones Opcionales',
+                    addSection: 'Agregar Sección',
+                    removeSection: 'Eliminar Sección'
                 },
                 fr: {
                     title: 'EasyDoc',
@@ -320,7 +341,13 @@
                     editingOptions: 'Options d\'Édition du Document',
                     editingDesc: 'Personnalisez l\'apparence et le style de votre document',
                     documentContent: 'Contenu du Document',
-                    contentDesc: 'Remplissez vos informations ci-dessous'
+                    contentDesc: 'Remplissez vos informations ci-dessous',
+                    chooseLayout: 'Choisir la Mise en Page',
+                    layoutDesc: 'Sélectionnez comment votre contenu est organisé sur la page',
+                    addOptionalContent: 'Ajouter Contenu Optionnel',
+                    optionalSections: 'Sections Optionnelles',
+                    addSection: 'Ajouter Section',
+                    removeSection: 'Supprimer Section'
                 }
             };
 
@@ -396,6 +423,34 @@
                     hasImages: true,
                     imageFields: ['photo'],
                     styles: ['classic', 'modern', 'minimal'],
+                    layouts: {
+                        layout1: { name: 'Traditional', desc: 'Classic top-to-bottom format' },
+                        layout2: { name: 'Two-Column', desc: 'Skills and experience side-by-side' },
+                        layout3: { name: 'Sidebar', desc: 'Contact info in left sidebar' }
+                    },
+                    optionalContent: [
+                        { id: 'references', name: 'References', fields: [
+                            { name: 'references', label: 'References', type: 'list', sub: [
+                                { name: 'refName', label: 'Name' },
+                                { name: 'refTitle', label: 'Title' },
+                                { name: 'refCompany', label: 'Company' },
+                                { name: 'refPhone', label: 'Phone' }
+                            ]}
+                        ]},
+                        { id: 'languages', name: 'Languages', fields: [
+                            { name: 'languages', label: 'Languages', type: 'text' }
+                        ]},
+                        { id: 'hobbies', name: 'Hobbies & Interests', fields: [
+                            { name: 'hobbies', label: 'Hobbies & Interests', type: 'textarea' }
+                        ]},
+                        { id: 'volunteering', name: 'Volunteer Work', fields: [
+                            { name: 'volunteering', label: 'Volunteer Experience', type: 'list', sub: [
+                                { name: 'volOrg', label: 'Organization' },
+                                { name: 'volRole', label: 'Role' },
+                                { name: 'volPeriod', label: 'Period' }
+                            ]}
+                        ]}
+                    ],
                     fields: [
                         { name: 'fullName', label: 'Full Name', type: 'text', req: true },
                         { name: 'photo', label: 'Photo (Optional)', type: 'image', help: 'Professional headshot recommended' },
@@ -481,6 +536,25 @@
                     category: 'Business',
                     hasImages: true,
                     imageFields: ['logo'],
+                    styles: ['classic', 'modern', 'minimal'],
+                    layouts: {
+                        layout1: { name: 'Standard', desc: 'Traditional invoice layout' },
+                        layout2: { name: 'Modern', desc: 'Logo at top, clean lines' },
+                        layout3: { name: 'Detailed', desc: 'Extended item descriptions' }
+                    },
+                    optionalContent: [
+                        { id: 'discount', name: 'Discount/Tax', fields: [
+                            { name: 'discount', label: 'Discount (%)', type: 'number' },
+                            { name: 'tax', label: 'Tax (%)', type: 'number' }
+                        ]},
+                        { id: 'shipping', name: 'Shipping Info', fields: [
+                            { name: 'shippingCost', label: 'Shipping Cost', type: 'number' },
+                            { name: 'shippingAddress', label: 'Shipping Address', type: 'textarea' }
+                        ]},
+                        { id: 'terms', name: 'Payment Terms', fields: [
+                            { name: 'paymentTerms', label: 'Payment Terms', type: 'textarea' }
+                        ]}
+                    ],
                     fields: [
                         { name: 'invoiceNumber', label: 'Invoice #', type: 'text', req: true },
                         { name: 'logo', label: 'Company Logo (Optional)', type: 'image', help: 'Add your business logo' },
@@ -840,6 +914,8 @@
             const selectTemplate = (t) => {
                 setTemplate(t);
                 setSelectedStyle(t.hasStyles ? 'classic' : null);
+                setSelectedLayout('layout1');
+                setAdditionalSections([]);
                 const init = {};
                 t.fields.forEach(f => {
                     init[f.name] = f.type === 'list' ? [{}] : '';
@@ -855,6 +931,26 @@
                 ...p,
                 [k]: p[k].map((item, idx) => idx === i ? { ...item, [sk]: v } : item)
             }));
+
+            // Handle optional content sections
+            const addOptionalSection = (sectionId) => {
+                const section = template.optionalContent?.find(s => s.id === sectionId);
+                if (section && !additionalSections.includes(sectionId)) {
+                    setAdditionalSections(prev => [...prev, sectionId]);
+                    // Initialize data for new section
+                    section.fields.forEach(f => {
+                        setData(prev => ({
+                            ...prev,
+                            [f.name]: f.type === 'list' ? [{}] : ''
+                        }));
+                    });
+                }
+                setShowAddContent(false);
+            };
+
+            const removeOptionalSection = (sectionId) => {
+                setAdditionalSections(prev => prev.filter(id => id !== sectionId));
+            };
 
             // Save draft
             const saveDraft = () => {
@@ -1926,6 +2022,66 @@
                                         ))}
                                     </div>
                                 </div>
+
+                                {/* Layout Selector - NEW */}
+                                {template.layouts && (
+                                    <div className="mt-6 pt-6 border-t border-gray-300">
+                                        <h4 className={`text-sm font-semibold mb-4 ${darkMode ? 'text-white' : ''}`}>{t.chooseLayout}</h4>
+                                        <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-3`}>{t.layoutDesc}</p>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {Object.keys(template.layouts).map(layoutKey => {
+                                                const layout = template.layouts[layoutKey];
+                                                return (
+                                                    <div
+                                                        key={layoutKey}
+                                                        onClick={() => setSelectedLayout(layoutKey)}
+                                                        className={`cursor-pointer rounded-lg p-3 border-2 transition ${
+                                                            selectedLayout === layoutKey
+                                                                ? 'border-blue-500 bg-blue-50'
+                                                                : darkMode ? 'border-gray-600 bg-gray-600 hover:bg-gray-500' : 'border-gray-300 bg-white hover:shadow-md'
+                                                        }`}
+                                                    >
+                                                        <div className="text-center">
+                                                            <p className={`text-sm font-semibold mb-1 ${darkMode ? 'text-white' : ''}`}>{layout.name}</p>
+                                                            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{layout.desc}</p>
+                                                            {/* Visual representation */}
+                                                            <div className="mt-2">
+                                                                {layoutKey === 'layout1' && (
+                                                                    <div className="space-y-1">
+                                                                        <div className="h-2 bg-gray-400 w-full rounded"></div>
+                                                                        <div className="h-2 bg-gray-300 w-full rounded"></div>
+                                                                        <div className="h-2 bg-gray-300 w-full rounded"></div>
+                                                                    </div>
+                                                                )}
+                                                                {layoutKey === 'layout2' && (
+                                                                    <div className="flex gap-1">
+                                                                        <div className="space-y-1 flex-1">
+                                                                            <div className="h-2 bg-gray-400 w-full rounded"></div>
+                                                                            <div className="h-2 bg-gray-300 w-full rounded"></div>
+                                                                        </div>
+                                                                        <div className="space-y-1 flex-1">
+                                                                            <div className="h-2 bg-gray-400 w-full rounded"></div>
+                                                                            <div className="h-2 bg-gray-300 w-full rounded"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                                {layoutKey === 'layout3' && (
+                                                                    <div className="flex gap-1">
+                                                                        <div className="w-1/3 h-6 bg-gray-400 rounded"></div>
+                                                                        <div className="flex-1 space-y-1">
+                                                                            <div className="h-2 bg-gray-300 w-full rounded"></div>
+                                                                            <div className="h-2 bg-gray-300 w-full rounded"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* SECTION 2: DOCUMENT CONTENT */}
@@ -1935,8 +2091,40 @@
                                 </h3>
                                 <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-6`}>{t.contentDesc}</p>
 
+                                {/* Add Optional Content Button */}
+                                {template.optionalContent && template.optionalContent.length > 0 && (
+                                    <div className="mb-6">
+                                        <button
+                                            onClick={() => setShowAddContent(true)}
+                                            className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 flex items-center gap-2"
+                                        >
+                                            ➕ {t.addOptionalContent}
+                                        </button>
+                                    </div>
+                                )}
+
                                 <div className="space-y-4">
                                     {template.fields.map(renderField)}
+                                    
+                                    {/* Render Additional Optional Sections */}
+                                    {additionalSections.map(sectionId => {
+                                        const section = template.optionalContent?.find(s => s.id === sectionId);
+                                        if (!section) return null;
+                                        return (
+                                            <div key={sectionId} className={`p-4 ${darkMode ? 'bg-purple-900' : 'bg-purple-50'} rounded-lg border-2 ${darkMode ? 'border-purple-700' : 'border-purple-200'}`}>
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-purple-900'}`}>✨ {section.name}</h4>
+                                                    <button
+                                                        onClick={() => removeOptionalSection(sectionId)}
+                                                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                                                    >
+                                                        {t.removeSection}
+                                                    </button>
+                                                </div>
+                                                {section.fields.map(renderField)}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -1945,6 +2133,42 @@
                                 {t.downloadPDF}
                             </button>
                         </div>
+
+                        {/* Add Optional Content Modal */}
+                        {showAddContent && template.optionalContent && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                                <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 max-w-md w-full`}>
+                                    <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-white' : ''}`}>{t.optionalSections}</h3>
+                                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-4`}>Choose additional sections to add to your document:</p>
+                                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                                        {template.optionalContent.map(section => {
+                                            const isAdded = additionalSections.includes(section.id);
+                                            return (
+                                                <button
+                                                    key={section.id}
+                                                    onClick={() => addOptionalSection(section.id)}
+                                                    disabled={isAdded}
+                                                    className={`w-full p-3 rounded-lg text-left transition ${
+                                                        isAdded
+                                                            ? darkMode ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                                            : darkMode ? 'bg-purple-900 hover:bg-purple-800 text-white' : 'bg-purple-100 hover:bg-purple-200 text-purple-900'
+                                                    }`}
+                                                >
+                                                    <div className="font-semibold">{section.name}</div>
+                                                    {isAdded && <div className="text-xs mt-1">✓ Already added</div>}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <button 
+                                        onClick={() => setShowAddContent(false)} 
+                                        className={`w-full mt-4 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} px-4 py-2 rounded-lg font-semibold`}
+                                    >
+                                        {t.close}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Save Modal */}
                         {showSaveModal && (
