@@ -1877,6 +1877,10 @@
             };
 
             if (view === 'editor' && template) {
+                console.log('Editor View Active - Template:', template.name);
+                console.log('Has Layouts:', !!template.layouts);
+                console.log('Has Optional Content:', !!template.optionalContent);
+                
                 const styleVisuals = {
                     classic: {
                         name: 'Classic',
