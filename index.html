@@ -608,31 +608,29 @@ function App() {
                     </div>
 
                     {/* Popular Templates */}
-                    {!search && category === "All" && (
-                        <div className="space-y-4">
-                            <h3 className="text-xl font-semibold">⭐ Most Popular Templates</h3>
-                            <div className="grid md:grid-cols-3 gap-4">
-                                {popular.map(tpl => (
-                                    <button
-                                        key={tpl.id}
-                                        onClick={() => selectTemplate(tpl)}
-                                        className="bg-white border rounded-lg p-5 text-left hover:shadow-lg transition group"
-                                    >
-                                        <div className="flex items-start justify-between">
-                                            <div className="space-y-2 flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-2xl">{tpl.icon}</span>
-                                                    <h3 className="font-semibold text-gray-900">{tpl.name}</h3>
-                                                </div>
-                                                <p className="text-sm text-gray-600">{tpl.desc}</p>
+                    <div className="space-y-4">
+                        <h3 className="text-xl font-semibold">⭐ Most Popular Templates</h3>
+                        <div className="grid md:grid-cols-3 gap-4">
+                            {popular.map(tpl => (
+                                <button
+                                    key={tpl.id}
+                                    onClick={() => selectTemplate(tpl)}
+                                    className="bg-white border rounded-lg p-5 text-left hover:shadow-lg transition group"
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-2 flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-2xl">{tpl.icon}</span>
+                                                <h3 className="font-semibold text-gray-900">{tpl.name}</h3>
                                             </div>
-                                            <span className="text-gray-400 group-hover:text-blue-600 transition">→</span>
+                                            <p className="text-sm text-gray-600">{tpl.desc}</p>
                                         </div>
-                                    </button>
-                                ))}
-                            </div>
+                                        <span className="text-gray-400 group-hover:text-blue-600 transition">→</span>
+                                    </div>
+                                </button>
+                            ))}
                         </div>
-                    )}
+                    </div>
 
                     {/* Categories */}
                     <div className="space-y-4">
@@ -692,9 +690,18 @@ function App() {
                         {/* FORM */}
                         <div className="space-y-6">
                             <div className="bg-white rounded-lg shadow p-6 space-y-6">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-3xl">{template.icon}</span>
-                                    <h2 className="text-2xl font-bold">{template.name}</h2>
+                                {/* Top bar with back button */}
+                                <div className="flex items-center justify-between">
+                                    <button
+                                        onClick={() => setStage("home")}
+                                        className="flex items-center gap-2 text-gray-700 hover:text-gray-900 text-sm font-medium"
+                                    >
+                                        ← Back
+                                    </button>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-3xl">{template.icon}</span>
+                                        <h2 className="text-2xl font-bold">{template.name}</h2>
+                                    </div>
                                 </div>
 
                                 {template.sections.map(sec => (
@@ -753,24 +760,19 @@ function App() {
                                     </div>
                                 ))}
 
-                                <div className="flex gap-3 pt-4 border-t">
+                                {/* Bottom buttons: Download first, then Save */}
+                                <div className="flex gap-3 pt-4 border-t justify-end">
                                     <button
-                                        onClick={() => setStage("home")}
-                                        className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                        onClick={exportPDF}
+                                        className="px-6 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
                                     >
-                                        ← Back
+                                        Download PDF
                                     </button>
                                     <button
                                         onClick={saveDraft}
                                         className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
                                     >
                                         💾 Save Draft
-                                    </button>
-                                    <button
-                                        onClick={exportPDF}
-                                        className="px-6 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
-                                    >
-                                        Download PDF
                                     </button>
                                 </div>
                             </div>
