@@ -1,1030 +1,1047 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>EasyDoc</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyDoc</title>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-<!-- React -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
-<!-- Babel -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <!-- React -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
-<!-- jsPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Babel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 
-<!-- html2canvas -->
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- Tailwind -->
-<script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
-<style>
-body {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-}
-.preview-content {
-    font-family: 'Poppins', sans-serif;
-    color: #333;
-    font-size: 12px;
-    line-height: 1.5;
-}
-.preview-content h1 {
-    color: #1e40af;
-    position: relative;
-    font-size: 28px;
-    font-weight: 600;
-}
-.preview-content h1::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(to right, #1e40af, #60a5fa);
-    border-radius: 2px;
-}
-.preview-content h2 {
-    color: #1e40af;
-    border-bottom: 2px solid #dbeafe;
-    padding-bottom: 8px;
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-.preview-content h3 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-}
-.preview-content p {
-    font-size: 12px;
-    color: #555;
-}
-.preview-content .section {
-    margin-bottom: 24px;
-}
-.preview-content .item {
-    position: relative;
-    padding-left: 20px;
-    margin-bottom: 16px;
-}
-.preview-content .item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 5px;
-    width: 8px;
-    height: 8px;
-    background: #60a5fa;
-    border-radius: 50%;
-}
-.preview-content .table {
-    width: 100%;
-    border-collapse: collapse;
-}
-.preview-content .table th,
-.preview-content .table td {
-    border: 1px solid #dbeafe;
-    padding: 8px;
-    text-align: left;
-}
-.preview-content .table th {
-    background-color: #eff6ff;
-    font-weight: 600;
-}
-.preview-content .certificate {
-    text-align: center;
-    border: 2px solid #1e40af;
-    padding: 40px;
-    border-radius: 8px;
-    position: relative;
-}
-.preview-content .certificate::before {
-    content: '🏆';
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 40px;
-    background: white;
-    padding: 0 10px;
-}
-</style>
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+        }
+        .preview-content {
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .preview-content h1 {
+            color: #1e40af;
+            position: relative;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .preview-content h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, #1e40af, #60a5fa);
+            border-radius: 2px;
+        }
+        .preview-content h2 {
+            color: #1e40af;
+            border-bottom: 2px solid #dbeafe;
+            padding-bottom: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .preview-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        .preview-content p {
+            font-size: 12px;
+            color: #555;
+        }
+        .preview-content .section {
+            margin-bottom: 24px;
+        }
+        .preview-content .item {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 16px;
+        }
+        .preview-content .item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 8px;
+            height: 8px;
+            background: #60a5fa;
+            border-radius: 50%;
+        }
+        .preview-content .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .preview-content .table th,
+        .preview-content .table td {
+            border: 1px solid #dbeafe;
+            padding: 8px;
+            text-align: left;
+        }
+        .preview-content .table th {
+            background-color: #eff6ff;
+            font-weight: 600;
+        }
+        .preview-content .certificate {
+            text-align: center;
+            border: 2px solid #1e40af;
+            padding: 40px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .preview-content .certificate::before {
+            content: '🏆';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 40px;
+            background: white;
+            padding: 0 10px;
+        }
+        /* Custom responsive adjustments */
+        .preview-container {
+            overflow: auto;
+            max-height: 80vh;
+        }
+        .preview-content {
+            min-width: 595px; /* A4 width, but we'll scale on mobile */
+        }
+        @media (max-width: 767px) {
+            .preview-content {
+                min-width: auto;
+                transform: scale(0.8); /* Scale down preview on small screens */
+                transform-origin: top left;
+            }
+        }
+    </style>
 </head>
 
 <body>
-<div id="root"></div>
+    <div id="root"></div>
 
-<script type="text/babel">
-const { useState } = React;
-const { jsPDF } = window.jspdf;
+    <script type="text/babel">
+        const { useState } = React;
+        const { jsPDF } = window.jspdf;
 
-/* -------------------- TEMPLATES -------------------- */
-const TEMPLATES = Object.freeze([
-    {
-        id: "resume",
-        name: "Professional Resume",
-        icon: "📄",
-        category: "Personal",
-        desc: "Create a professional resume with experience and skills",
-        popular: true,
-        sections: [
+        /* -------------------- TEMPLATES -------------------- */
+        const TEMPLATES = Object.freeze([
             {
-                id: "header",
-                title: "Header",
-                fields: [
-                    { name: "name", label: "Full Name" },
-                    { name: "title", label: "Professional Title" },
-                    { name: "email", label: "Email" },
-                    { name: "phone", label: "Phone" },
+                id: "resume",
+                name: "Professional Resume",
+                icon: "📄",
+                category: "Personal",
+                desc: "Create a professional resume with experience and skills",
+                popular: true,
+                sections: [
+                    {
+                        id: "header",
+                        title: "Header",
+                        fields: [
+                            { name: "name", label: "Full Name" },
+                            { name: "title", label: "Professional Title" },
+                            { name: "email", label: "Email" },
+                            { name: "phone", label: "Phone" },
+                        ],
+                    },
+                    {
+                        id: "summary",
+                        title: "Summary",
+                        fields: [
+                            { name: "summary", label: "Professional Summary", type: "textarea" },
+                        ],
+                    },
+                    {
+                        id: "experience",
+                        title: "Experience",
+                        repeatable: true,
+                        fields: [
+                            { name: "role", label: "Role" },
+                            { name: "company", label: "Company" },
+                            { name: "period", label: "Period" },
+                            { name: "description", label: "Description", type: "textarea" },
+                        ],
+                    },
+                    {
+                        id: "education",
+                        title: "Education",
+                        repeatable: true,
+                        fields: [
+                            { name: "degree", label: "Degree" },
+                            { name: "school", label: "School" },
+                            { name: "year", label: "Year" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "summary",
-                title: "Summary",
-                fields: [
-                    { name: "summary", label: "Professional Summary", type: "textarea" },
+                id: "cv",
+                name: "Curriculum Vitae (CV)",
+                icon: "📋",
+                category: "Personal",
+                desc: "Comprehensive academic/professional CV",
+                popular: true,
+                sections: [
+                    {
+                        id: "header",
+                        title: "Personal Information",
+                        fields: [
+                            { name: "name", label: "Full Name" },
+                            { name: "email", label: "Email" },
+                            { name: "phone", label: "Phone" },
+                            { name: "address", label: "Address" },
+                        ],
+                    },
+                    {
+                        id: "experience",
+                        title: "Professional Experience",
+                        repeatable: true,
+                        fields: [
+                            { name: "position", label: "Position" },
+                            { name: "organization", label: "Organization" },
+                            { name: "period", label: "Period" },
+                            { name: "responsibilities", label: "Responsibilities", type: "textarea" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "experience",
-                title: "Experience",
-                repeatable: true,
-                fields: [
-                    { name: "role", label: "Role" },
-                    { name: "company", label: "Company" },
-                    { name: "period", label: "Period" },
-                    { name: "description", label: "Description", type: "textarea" },
+                id: "portfolio",
+                name: "Portfolio",
+                icon: "🎨",
+                category: "Personal",
+                desc: "Showcase your work and projects",
+                popular: true,
+                sections: [
+                    {
+                        id: "intro",
+                        title: "Introduction",
+                        fields: [
+                            { name: "name", label: "Your Name" },
+                            { name: "tagline", label: "Tagline" },
+                            { name: "bio", label: "Bio", type: "textarea" },
+                        ],
+                    },
+                    {
+                        id: "projects",
+                        title: "Projects",
+                        repeatable: true,
+                        fields: [
+                            { name: "title", label: "Project Title" },
+                            { name: "description", label: "Description", type: "textarea" },
+                            { name: "tech", label: "Technologies Used" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "education",
-                title: "Education",
-                repeatable: true,
-                fields: [
-                    { name: "degree", label: "Degree" },
-                    { name: "school", label: "School" },
-                    { name: "year", label: "Year" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "cv",
-        name: "Curriculum Vitae (CV)",
-        icon: "📋",
-        category: "Personal",
-        desc: "Comprehensive academic/professional CV",
-        popular: true,
-        sections: [
-            {
-                id: "header",
-                title: "Personal Information",
-                fields: [
-                    { name: "name", label: "Full Name" },
-                    { name: "email", label: "Email" },
-                    { name: "phone", label: "Phone" },
-                    { name: "address", label: "Address" },
-                ],
-            },
-            {
-                id: "experience",
-                title: "Professional Experience",
-                repeatable: true,
-                fields: [
-                    { name: "position", label: "Position" },
-                    { name: "organization", label: "Organization" },
-                    { name: "period", label: "Period" },
-                    { name: "responsibilities", label: "Responsibilities", type: "textarea" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "portfolio",
-        name: "Portfolio",
-        icon: "🎨",
-        category: "Personal",
-        desc: "Showcase your work and projects",
-        popular: true,
-        sections: [
-            {
-                id: "intro",
-                title: "Introduction",
-                fields: [
-                    { name: "name", label: "Your Name" },
-                    { name: "tagline", label: "Tagline" },
-                    { name: "bio", label: "Bio", type: "textarea" },
+                id: "invoice",
+                name: "Business Invoice",
+                icon: "💰",
+                category: "Business",
+                desc: "Generate professional invoices for clients",
+                popular: false,
+                sections: [
+                    {
+                        id: "header",
+                        title: "Invoice Details",
+                        fields: [
+                            { name: "invoiceNumber", label: "Invoice #" },
+                            { name: "date", label: "Date" },
+                        ],
+                    },
+                    {
+                        id: "client",
+                        title: "Client",
+                        fields: [
+                            { name: "clientName", label: "Client Name" },
+                            { name: "clientAddress", label: "Address" },
+                        ],
+                    },
+                    {
+                        id: "items",
+                        title: "Items",
+                        repeatable: true,
+                        fields: [
+                            { name: "item", label: "Item" },
+                            { name: "qty", label: "Qty" },
+                            { name: "price", label: "Price" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "projects",
-                title: "Projects",
-                repeatable: true,
-                fields: [
-                    { name: "title", label: "Project Title" },
-                    { name: "description", label: "Description", type: "textarea" },
-                    { name: "tech", label: "Technologies Used" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "invoice",
-        name: "Business Invoice",
-        icon: "💰",
-        category: "Business",
-        desc: "Generate professional invoices for clients",
-        popular: false,
-        sections: [
-            {
-                id: "header",
-                title: "Invoice Details",
-                fields: [
-                    { name: "invoiceNumber", label: "Invoice #" },
-                    { name: "date", label: "Date" },
-                ],
-            },
-            {
-                id: "client",
-                title: "Client",
-                fields: [
-                    { name: "clientName", label: "Client Name" },
-                    { name: "clientAddress", label: "Address" },
-                ],
-            },
-            {
-                id: "items",
-                title: "Items",
-                repeatable: true,
-                fields: [
-                    { name: "item", label: "Item" },
-                    { name: "qty", label: "Qty" },
-                    { name: "price", label: "Price" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "formal-letter",
-        name: "Formal Letter",
-        icon: "✉️",
-        category: "Personal",
-        desc: "Create formal business or personal letters",
-        popular: true,
-        sections: [
-            {
-                id: "sender",
-                title: "Your Information",
-                fields: [
-                    { name: "name", label: "Your Name" },
-                    { name: "address", label: "Your Address" },
-                    { name: "date", label: "Date" },
+                id: "formal-letter",
+                name: "Formal Letter",
+                icon: "✉️",
+                category: "Personal",
+                desc: "Create formal business or personal letters",
+                popular: true,
+                sections: [
+                    {
+                        id: "sender",
+                        title: "Your Information",
+                        fields: [
+                            { name: "name", label: "Your Name" },
+                            { name: "address", label: "Your Address" },
+                            { name: "date", label: "Date" },
+                        ],
+                    },
+                    {
+                        id: "recipient",
+                        title: "Recipient",
+                        fields: [
+                            { name: "recipientName", label: "Recipient Name" },
+                            { name: "company", label: "Company/Organization" },
+                            { name: "address", label: "Address" },
+                        ],
+                    },
+                    {
+                        id: "body",
+                        title: "Letter Content",
+                        fields: [
+                            { name: "subject", label: "Subject" },
+                            { name: "body", label: "Message", type: "textarea" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "recipient",
-                title: "Recipient",
-                fields: [
-                    { name: "recipientName", label: "Recipient Name" },
-                    { name: "company", label: "Company/Organization" },
-                    { name: "address", label: "Address" },
+                id: "certificate",
+                name: "Certificate",
+                icon: "🏆",
+                category: "Educational",
+                desc: "Create achievement and completion certificates",
+                popular: true,
+                sections: [
+                    {
+                        id: "details",
+                        title: "Certificate Details",
+                        fields: [
+                            { name: "recipient", label: "Recipient Name" },
+                            { name: "achievement", label: "Achievement/Course" },
+                            { name: "date", label: "Date" },
+                            { name: "issuer", label: "Issued By" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "body",
-                title: "Letter Content",
-                fields: [
-                    { name: "subject", label: "Subject" },
-                    { name: "body", label: "Message", type: "textarea" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "certificate",
-        name: "Certificate",
-        icon: "🏆",
-        category: "Educational",
-        desc: "Create achievement and completion certificates",
-        popular: true,
-        sections: [
-            {
-                id: "details",
-                title: "Certificate Details",
-                fields: [
-                    { name: "recipient", label: "Recipient Name" },
-                    { name: "achievement", label: "Achievement/Course" },
-                    { name: "date", label: "Date" },
-                    { name: "issuer", label: "Issued By" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "cover-letter",
-        name: "Cover Letter",
-        icon: "📮",
-        category: "Personal",
-        desc: "Professional job application cover letter",
-        popular: false,
-        sections: [
-            {
-                id: "header",
-                title: "Your Information",
-                fields: [
-                    { name: "name", label: "Your Name" },
-                    { name: "address", label: "Your Address" },
-                    { name: "date", label: "Date" },
+                id: "cover-letter",
+                name: "Cover Letter",
+                icon: "📮",
+                category: "Personal",
+                desc: "Professional job application cover letter",
+                popular: false,
+                sections: [
+                    {
+                        id: "header",
+                        title: "Your Information",
+                        fields: [
+                            { name: "name", label: "Your Name" },
+                            { name: "address", label: "Your Address" },
+                            { name: "date", label: "Date" },
+                        ],
+                    },
+                    {
+                        id: "recipient",
+                        title: "Recipient",
+                        fields: [
+                            { name: "recipientName", label: "Hiring Manager" },
+                            { name: "company", label: "Company" },
+                            { name: "position", label: "Position" },
+                        ],
+                    },
+                    {
+                        id: "body",
+                        title: "Letter Body",
+                        fields: [
+                            { name: "opening", label: "Opening Paragraph", type: "textarea" },
+                            { name: "middle", label: "Middle Paragraph", type: "textarea" },
+                            { name: "closing", label: "Closing Paragraph", type: "textarea" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "recipient",
-                title: "Recipient",
-                fields: [
-                    { name: "recipientName", label: "Hiring Manager" },
-                    { name: "company", label: "Company" },
-                    { name: "position", label: "Position" },
+                id: "agenda",
+                name: "Meeting Agenda",
+                icon: "📋",
+                category: "Business",
+                desc: "Professional meeting agenda",
+                popular: false,
+                sections: [
+                    {
+                        id: "meeting",
+                        title: "Meeting Info",
+                        fields: [
+                            { name: "title", label: "Meeting Title" },
+                            { name: "date", label: "Date" },
+                            { name: "time", label: "Time" },
+                        ],
+                    },
+                    {
+                        id: "items",
+                        title: "Agenda Items",
+                        repeatable: true,
+                        fields: [
+                            { name: "topic", label: "Topic" },
+                            { name: "duration", label: "Duration" },
+                            { name: "presenter", label: "Presenter" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "body",
-                title: "Letter Body",
-                fields: [
-                    { name: "opening", label: "Opening Paragraph", type: "textarea" },
-                    { name: "middle", label: "Middle Paragraph", type: "textarea" },
-                    { name: "closing", label: "Closing Paragraph", type: "textarea" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "agenda",
-        name: "Meeting Agenda",
-        icon: "📋",
-        category: "Business",
-        desc: "Professional meeting agenda",
-        popular: false,
-        sections: [
-            {
-                id: "meeting",
-                title: "Meeting Info",
-                fields: [
-                    { name: "title", label: "Meeting Title" },
-                    { name: "date", label: "Date" },
-                    { name: "time", label: "Time" },
-                ],
-            },
-            {
-                id: "items",
-                title: "Agenda Items",
-                repeatable: true,
-                fields: [
-                    { name: "topic", label: "Topic" },
-                    { name: "duration", label: "Duration" },
-                    { name: "presenter", label: "Presenter" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "proposal",
-        name: "Business Proposal",
-        icon: "📊",
-        category: "Business",
-        desc: "Professional business proposal template",
-        popular: false,
-        sections: [
-            {
-                id: "header",
-                title: "Proposal Details",
-                fields: [
-                    { name: "title", label: "Proposal Title" },
-                    { name: "client", label: "Client Name" },
-                    { name: "date", label: "Date" },
+                id: "proposal",
+                name: "Business Proposal",
+                icon: "📊",
+                category: "Business",
+                desc: "Professional business proposal template",
+                popular: false,
+                sections: [
+                    {
+                        id: "header",
+                        title: "Proposal Details",
+                        fields: [
+                            { name: "title", label: "Proposal Title" },
+                            { name: "client", label: "Client Name" },
+                            { name: "date", label: "Date" },
+                        ],
+                    },
+                    {
+                        id: "executive",
+                        title: "Executive Summary",
+                        fields: [
+                            { name: "summary", label: "Summary", type: "textarea" },
+                        ],
+                    },
                 ],
             },
             {
-                id: "executive",
-                title: "Executive Summary",
-                fields: [
-                    { name: "summary", label: "Summary", type: "textarea" },
+                id: "receipt",
+                name: "Payment Receipt",
+                icon: "🧾",
+                category: "Business",
+                desc: "Simple payment receipt",
+                popular: false,
+                sections: [
+                    {
+                        id: "details",
+                        title: "Receipt Details",
+                        fields: [
+                            { name: "receiptNumber", label: "Receipt #" },
+                            { name: "date", label: "Date" },
+                            { name: "payer", label: "Received From" },
+                            { name: "amount", label: "Amount" },
+                            { name: "for", label: "Payment For" },
+                        ],
+                    },
                 ],
             },
-        ],
-    },
-    {
-        id: "receipt",
-        name: "Payment Receipt",
-        icon: "🧾",
-        category: "Business",
-        desc: "Simple payment receipt",
-        popular: false,
-        sections: [
-            {
-                id: "details",
-                title: "Receipt Details",
-                fields: [
-                    { name: "receiptNumber", label: "Receipt #" },
-                    { name: "date", label: "Date" },
-                    { name: "payer", label: "Received From" },
-                    { name: "amount", label: "Amount" },
-                    { name: "for", label: "Payment For" },
-                ],
-            },
-        ],
-    },
-]);
+        ]);
 
-const CATEGORIES = ["All", "Business", "Personal", "Legal", "Educational", "Events"];
+        const CATEGORIES = ["All", "Business", "Personal", "Legal", "Educational", "Events"];
 
-/* -------------------- HELPERS -------------------- */
-function initDocument(sections) {
-    const doc = {};
-    sections.forEach(sec => {
-        doc[sec.id] = sec.repeatable ? [initSection(sec)] : initSection(sec);
-    });
-    return doc;
-}
+        /* -------------------- HELPERS -------------------- */
+        function initDocument(sections) {
+            const doc = {};
+            sections.forEach(sec => {
+                doc[sec.id] = sec.repeatable ? [initSection(sec)] : initSection(sec);
+            });
+            return doc;
+        }
 
-function initSection(section) {
-    const obj = {};
-    section.fields.forEach(f => {
-        obj[f.name] = "";
-    });
-    return obj;
-}
+        function initSection(section) {
+            const obj = {};
+            section.fields.forEach(f => {
+                obj[f.name] = "";
+            });
+            return obj;
+        }
 
-/* -------------------- APP -------------------- */
-function App() {
-    const [stage, setStage] = useState("home");
-    const [template, setTemplate] = useState(null);
-    const [documentData, setDocumentData] = useState({});
-    const [search, setSearch] = useState("");
-    const [category, setCategory] = useState("All");
+        /* -------------------- APP -------------------- */
+        function App() {
+            const [stage, setStage] = useState("home");
+            const [template, setTemplate] = useState(null);
+            const [documentData, setDocumentData] = useState({});
+            const [search, setSearch] = useState("");
+            const [category, setCategory] = useState("All");
 
-    function selectTemplate(tpl) {
-        setTemplate(tpl);
-        setDocumentData(initDocument(tpl.sections));
-        setStage("edit");
-    }
-
-    function updateField(sectionId, index, name, value) {
-        setDocumentData(prev => {
-            const copy = structuredClone(prev);
-            if (Array.isArray(copy[sectionId])) {
-                copy[sectionId][index][name] = value;
-            } else {
-                copy[sectionId][name] = value;
-            }
-            return copy;
-        });
-    }
-
-    function addSection(section) {
-        setDocumentData(prev => {
-            const copy = structuredClone(prev);
-            copy[section.id].push(initSection(section));
-            return copy;
-        });
-    }
-
-    function removeSection(section, idx) {
-        setDocumentData(prev => {
-            const copy = structuredClone(prev);
-            if (copy[section.id].length > 1) {
-                copy[section.id].splice(idx, 1);
-            }
-            return copy;
-        });
-    }
-
-    function saveDraft() {
-        const draft = { template: template.id, data: documentData };
-        localStorage.setItem("easydoc_draft", JSON.stringify(draft));
-        alert("Draft saved!");
-    }
-
-    function loadDraft() {
-        const saved = localStorage.getItem("easydoc_draft");
-        if (saved) {
-            const draft = JSON.parse(saved);
-            const tpl = TEMPLATES.find(t => t.id === draft.template);
-            if (tpl) {
+            function selectTemplate(tpl) {
                 setTemplate(tpl);
-                setDocumentData(draft.data);
+                setDocumentData(initDocument(tpl.sections));
                 setStage("edit");
             }
-        } else {
-            alert("No draft found");
-        }
-    }
 
-    async function exportPDF() {
-        const element = document.querySelector('.preview-content');
-        if (!element) return;
+            function updateField(sectionId, index, name, value) {
+                setDocumentData(prev => {
+                    const copy = structuredClone(prev);
+                    if (Array.isArray(copy[sectionId])) {
+                        copy[sectionId][index][name] = value;
+                    } else {
+                        copy[sectionId][name] = value;
+                    }
+                    return copy;
+                });
+            }
 
-        const canvas = await html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            width: element.offsetWidth,
-            height: element.offsetHeight,
-        });
+            function addSection(section) {
+                setDocumentData(prev => {
+                    const copy = structuredClone(prev);
+                    copy[section.id].push(initSection(section));
+                    return copy;
+                });
+            }
 
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width / 2;
-        const imgHeight = canvas.height / 2;
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 0;
+            function removeSection(section, idx) {
+                setDocumentData(prev => {
+                    const copy = structuredClone(prev);
+                    if (copy[section.id].length > 1) {
+                        copy[section.id].splice(idx, 1);
+                    }
+                    return copy;
+                });
+            }
 
-        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-        pdf.save(template.id + ".pdf");
-    }
+            function saveDraft() {
+                const draft = { template: template.id, data: documentData };
+                localStorage.setItem("easydoc_draft", JSON.stringify(draft));
+                alert("Draft saved!");
+            }
 
-    const filtered = TEMPLATES.filter(t => {
-        const matchSearch = t.name.toLowerCase().includes(search.toLowerCase()) || 
-                           t.desc.toLowerCase().includes(search.toLowerCase());
-        const matchCategory = category === "All" || t.category === category;
-        return matchSearch && matchCategory;
-    });
+            function loadDraft() {
+                const saved = localStorage.getItem("easydoc_draft");
+                if (saved) {
+                    const draft = JSON.parse(saved);
+                    const tpl = TEMPLATES.find(t => t.id === draft.template);
+                    if (tpl) {
+                        setTemplate(tpl);
+                        setDocumentData(draft.data);
+                        setStage("edit");
+                    }
+                } else {
+                    alert("No draft found");
+                }
+            }
 
-    const popular = TEMPLATES.filter(t => t.popular);
+            async function exportPDF() {
+                const element = document.querySelector('.preview-content');
+                if (!element) return;
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-            
-            {/* HEADER */}
-            <header className="bg-white shadow-sm border-b">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">EasyDoc</h1>
-                    </div>
-                    <div className="flex gap-4 text-sm">
-                        {stage === "home" && (
-                            <button onClick={loadDraft} className="text-blue-600 hover:underline">
-                                💾 Load Draft
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </header>
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    width: element.offsetWidth,
+                    height: element.offsetHeight,
+                });
 
-            {/* HOME */}
-            {stage === "home" && (
-                <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = canvas.width / 2;
+                const imgHeight = canvas.height / 2;
+                const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                const imgY = 0;
+
+                pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                pdf.save(template.id + ".pdf");
+            }
+
+            const filtered = TEMPLATES.filter(t => {
+                const matchSearch = t.name.toLowerCase().includes(search.toLowerCase()) || 
+                                   t.desc.toLowerCase().includes(search.toLowerCase());
+                const matchCategory = category === "All" || t.category === category;
+                return matchSearch && matchCategory;
+            });
+
+            const popular = TEMPLATES.filter(t => t.popular);
+
+            return (
+                <div className="min-vh-100 bg-gradient-to-br from-blue-50 to-indigo-100">
                     
-                    {/* Hero */}
-                    <div className="text-center space-y-3">
-                        <h2 className="text-4xl font-bold text-gray-900">
-                            Create professional documents in minutes
-                        </h2>
-                        <p className="text-lg text-gray-600">
-                            Choose from our library of templates
-                        </p>
-                    </div>
-
-                    {/* Search */}
-                    <div className="max-w-2xl mx-auto">
-                        <input
-                            type="text"
-                            placeholder="Search templates..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            className="w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-
-                    {/* Popular Templates */}
-                    <div className="space-y-4">
-                        <h3 className="text-xl font-semibold">⭐ Most Popular Templates</h3>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            {popular.map(tpl => (
-                                <button
-                                    key={tpl.id}
-                                    onClick={() => selectTemplate(tpl)}
-                                    className="bg-white border rounded-lg p-5 text-left hover:shadow-lg transition group"
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-2 flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-2xl">{tpl.icon}</span>
-                                                <h3 className="font-semibold text-gray-900">{tpl.name}</h3>
-                                            </div>
-                                            <p className="text-sm text-gray-600">{tpl.desc}</p>
-                                        </div>
-                                        <span className="text-gray-400 group-hover:text-blue-600 transition">→</span>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Categories */}
-                    <div className="space-y-4">
-                        <div className="flex gap-2 flex-wrap">
-                            {CATEGORIES.map(cat => (
-                                <button
-                                    key={cat}
-                                    onClick={() => setCategory(cat)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                                        category === cat
-                                            ? "bg-blue-600 text-white"
-                                            : "bg-white text-gray-700 hover:bg-gray-100"
-                                    }`}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* All Templates */}
-                    <div className="space-y-4">
-                        <h3 className="text-xl font-semibold">All Templates</h3>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            {filtered.map(tpl => (
-                                <button
-                                    key={tpl.id}
-                                    onClick={() => selectTemplate(tpl)}
-                                    className="bg-white border rounded-lg p-5 text-left hover:shadow-lg transition group"
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-2 flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-2xl">{tpl.icon}</span>
-                                                <div>
-                                                    <h3 className="font-semibold text-gray-900">{tpl.name}</h3>
-                                                    <p className="text-xs text-gray-500">{tpl.category}</p>
-                                                </div>
-                                            </div>
-                                            <p className="text-sm text-gray-600">{tpl.desc}</p>
-                                        </div>
-                                        <span className="text-gray-400 group-hover:text-blue-600 transition">→</span>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                </div>
-            )}
-
-            {/* EDITOR */}
-            {stage === "edit" && (
-                <div className="max-w-7xl mx-auto px-6 py-8">
-                    <div className="grid md:grid-cols-2 gap-6">
-
-                        {/* FORM */}
-                        <div className="space-y-6">
-                            <div className="bg-white rounded-lg shadow p-6 space-y-6">
-                                {/* Top bar with back button */}
-                                <div className="flex items-center justify-between">
-                                    <button
-                                        onClick={() => setStage("home")}
-                                        className="flex items-center gap-2 text-gray-700 hover:text-gray-900 text-sm font-medium"
-                                    >
-                                        ← Back
+                    {/* HEADER */}
+                    <header className="bg-white shadow-sm border-bottom">
+                        <div className="container px-4 py-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 className="h4 fw-bold text-dark">EasyDoc</h1>
+                            </div>
+                            <div className="d-flex gap-3 fs-6">
+                                {stage === "home" && (
+                                    <button onClick={loadDraft} className="text-primary text-decoration-underline bg-transparent border-0">
+                                        💾 Load Draft
                                     </button>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-3xl">{template.icon}</span>
-                                        <h2 className="text-2xl font-bold">{template.name}</h2>
-                                    </div>
-                                </div>
-
-                                {template.sections.map(sec => (
-                                    <div key={sec.id} className="space-y-3">
-                                        <h3 className="font-semibold text-lg text-gray-800">{sec.title}</h3>
-
-                                        {(Array.isArray(documentData[sec.id])
-                                            ? documentData[sec.id]
-                                            : [documentData[sec.id]]
-                                        ).map((block, idx) => (
-                                            <div key={idx} className="space-y-3 border border-gray-200 p-4 rounded-lg bg-gray-50">
-                                                {sec.fields.map(f => (
-                                                    <div key={f.name}>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            {f.label}
-                                                        </label>
-                                                        {f.type === "textarea" ? (
-                                                            <textarea
-                                                                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                                rows="3"
-                                                                value={block[f.name]}
-                                                                onChange={e =>
-                                                                    updateField(sec.id, idx, f.name, e.target.value)
-                                                                }
-                                                            />
-                                                        ) : (
-                                                            <input
-                                                                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                                value={block[f.name]}
-                                                                onChange={e =>
-                                                                    updateField(sec.id, idx, f.name, e.target.value)
-                                                                }
-                                                            />
-                                                        )}
-                                                    </div>
-                                                ))}
-                                                {sec.repeatable && documentData[sec.id].length > 1 && (
-                                                    <button
-                                                        onClick={() => removeSection(sec, idx)}
-                                                        className="text-xs text-red-600 hover:underline"
-                                                    >
-                                                        Remove this {sec.title}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
-
-                                        {sec.repeatable && (
-                                            <button
-                                                onClick={() => addSection(sec)}
-                                                className="text-sm text-blue-600 hover:underline font-medium"
-                                            >
-                                                + Add {sec.title}
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
-
-                                {/* Bottom buttons: Download first, then Save */}
-                                <div className="flex gap-3 pt-4 border-t justify-end">
-                                    <button
-                                        onClick={exportPDF}
-                                        className="px-6 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
-                                    >
-                                        Download PDF
-                                    </button>
-                                    <button
-                                        onClick={saveDraft}
-                                        className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-                                    >
-                                        💾 Save Draft
-                                    </button>
-                                </div>
+                                )}
                             </div>
                         </div>
+                    </header>
 
-                        {/* PREVIEW */}
-                        <div className="bg-white rounded-lg shadow p-6 h-fit sticky top-6">
-                            <h3 className="font-semibold text-lg mb-4 text-gray-800">Live Preview</h3>
-                            <div className="preview-container overflow-auto max-h-[80vh]">
-                                <div className="preview-content border rounded p-8 bg-white min-w-[595px]">
-                                    {template.id === "resume" ? (
-                                        <div>
-                                            <div className="header mb-10">
-                                                <h1>{documentData.header.name || "Your Name"}</h1>
-                                                <p className="text-lg font-medium text-gray-600">{documentData.header.title || "Professional Title"}</p>
-                                                <p className="text-sm text-gray-500">{documentData.header.email || "email@example.com"} | {documentData.header.phone || "(123) 456-7890"}</p>
-                                            </div>
-                                            <div className="section summary">
-                                                <h2>Professional Summary</h2>
-                                                <p className="whitespace-pre-wrap">{documentData.summary.summary || "Your summary here"}</p>
-                                            </div>
-                                            <div className="section experience">
-                                                <h2>Experience</h2>
-                                                {documentData.experience.map((exp, idx) => (
-                                                    <div key={idx} className="item">
-                                                        <h3>{exp.role || "Role"}</h3>
-                                                        <p className="font-medium text-gray-700">{exp.company || "Company"} | {exp.period || "Period"}</p>
-                                                        <p className="whitespace-pre-wrap">{exp.description || "Description"}</p>
+                    {/* HOME */}
+                    {stage === "home" && (
+                        <div className="container px-4 py-5">
+                            
+                            {/* Hero */}
+                            <div className="text-center mb-5">
+                                <h2 className="display-5 fw-bold text-dark">
+                                    Create professional documents in minutes
+                                </h2>
+                                <p className="lead text-muted">
+                                    Choose from our library of templates
+                                </p>
+                            </div>
+
+                            {/* Search */}
+                            <div className="row justify-content-center mb-5">
+                                <div className="col-md-8">
+                                    <input
+                                        type="text"
+                                        placeholder="Search templates..."
+                                        value={search}
+                                        onChange={e => setSearch(e.target.value)}
+                                        className="form-control form-control-lg shadow-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Popular Templates */}
+                            <div className="mb-5">
+                                <h3 className="h5 fw-semibold mb-3">⭐ Most Popular Templates</h3>
+                                <div className="row g-3">
+                                    {popular.map(tpl => (
+                                        <div key={tpl.id} className="col-md-4">
+                                            <button
+                                                onClick={() => selectTemplate(tpl)}
+                                                className="card h-100 text-start bg-white border hover-shadow transition"
+                                            >
+                                                <div className="card-body d-flex flex-column">
+                                                    <div className="d-flex align-items-start mb-3">
+                                                        <span className="fs-3 me-2">{tpl.icon}</span>
+                                                        <div>
+                                                            <h5 className="card-title fw-semibold text-dark">{tpl.name}</h5>
+                                                            <p className="text-muted small">{tpl.category}</p>
+                                                        </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                            <div className="section education">
-                                                <h2>Education</h2>
-                                                {documentData.education.map((edu, idx) => (
-                                                    <div key={idx} className="item">
-                                                        <h3>{edu.degree || "Degree"}</h3>
-                                                        <p className="font-medium text-gray-700">{edu.school || "School"} | {edu.year || "Year"}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : template.id === "cv" ? (
-                                        <div>
-                                            <div className="header text-center mb-10">
-                                                <h1>{documentData.header.name || "Your Name"}</h1>
-                                                <p className="text-lg text-gray-600 mb-1">{documentData.header.address || "Your Address"}</p>
-                                                <p className="text-md text-gray-500">{documentData.header.email || "email@example.com"} | {documentData.header.phone || "(123) 456-7890"}</p>
-                                            </div>
-                                            <div className="experience">
-                                                <h2>Professional Experience</h2>
-                                                {documentData.experience.map((exp, idx) => (
-                                                    <div key={idx} className="item">
-                                                        <h3>{exp.position || "Position"}</h3>
-                                                        <p className="text-md text-gray-700 mb-2">{exp.organization || "Organization"} | {exp.period || "Period"}</p>
-                                                        <p className="whitespace-pre-wrap">{exp.responsibilities || "Responsibilities"}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : template.id === "portfolio" ? (
-                                        <div>
-                                            <div className="header mb-10">
-                                                <h1>{documentData.intro.name || "Your Name"}</h1>
-                                                <p className="text-lg font-medium text-gray-600">{documentData.intro.tagline || "Tagline"}</p>
-                                            </div>
-                                            <div className="section bio">
-                                                <h2>Bio</h2>
-                                                <p className="whitespace-pre-wrap">{documentData.intro.bio || "Your bio here"}</p>
-                                            </div>
-                                            <div className="section projects">
-                                                <h2>Projects</h2>
-                                                {documentData.projects.map((proj, idx) => (
-                                                    <div key={idx} className="item">
-                                                        <h3>{proj.title || "Project Title"}</h3>
-                                                        <p className="whitespace-pre-wrap">{proj.description || "Description"}</p>
-                                                        <p className="font-medium text-gray-700">{proj.tech || "Technologies Used"}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : template.id === "invoice" ? (
-                                        <div>
-                                            <div className="header mb-10 flex justify-between">
-                                                <div>
-                                                    <h1>Invoice</h1>
+                                                    <p className="card-text text-muted">{tpl.desc}</p>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p><strong>Invoice #:</strong> {documentData.header.invoiceNumber || "12345"}</p>
-                                                    <p><strong>Date:</strong> {documentData.header.date || "Date"}</p>
-                                                </div>
-                                            </div>
-                                            <div className="section client mb-8">
-                                                <h2>Bill To</h2>
-                                                <p>{documentData.client.clientName || "Client Name"}</p>
-                                                <p>{documentData.client.clientAddress || "Address"}</p>
-                                            </div>
-                                            <div className="section items">
-                                                <h2>Items</h2>
-                                                <table className="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Item</th>
-                                                            <th>Qty</th>
-                                                            <th>Price</th>
-                                                            <th>Total</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {documentData.items.map((item, idx) => (
-                                                            <tr key={idx}>
-                                                                <td>{item.item || "Item"}</td>
-                                                                <td>{item.qty || "1"}</td>
-                                                                <td>{item.price || "0.00"}</td>
-                                                                <td>{(parseFloat(item.qty || 1) * parseFloat(item.price || 0)).toFixed(2)}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                            </button>
                                         </div>
-                                    ) : template.id === "formal-letter" ? (
-                                        <div>
-                                            <div className="sender mb-8 text-right">
-                                                <p>{documentData.sender.name || "Your Name"}</p>
-                                                <p>{documentData.sender.address || "Your Address"}</p>
-                                                <p>{documentData.sender.date || "Date"}</p>
-                                            </div>
-                                            <div className="recipient mb-8">
-                                                <p>{documentData.recipient.recipientName || "Recipient Name"}</p>
-                                                <p>{documentData.recipient.company || "Company/Organization"}</p>
-                                                <p>{documentData.recipient.address || "Address"}</p>
-                                            </div>
-                                            <div className="body">
-                                                <p className="mb-4"><strong>Subject:</strong> {documentData.body.subject || "Subject"}</p>
-                                                <p className="whitespace-pre-wrap mb-4">{documentData.body.body || "Message"}</p>
-                                                <p className="mt-8">Sincerely,</p>
-                                                <p>{documentData.sender.name || "Your Name"}</p>
-                                            </div>
-                                        </div>
-                                    ) : template.id === "certificate" ? (
-                                        <div className="certificate">
-                                            <h1>Certificate of Achievement</h1>
-                                            <p className="text-lg mt-8">This certifies that</p>
-                                            <h2 className="text-2xl font-bold">{documentData.details.recipient || "Recipient Name"}</h2>
-                                            <p className="text-lg mt-4">has successfully completed</p>
-                                            <h3 className="text-xl">{documentData.details.achievement || "Achievement/Course"}</h3>
-                                            <p className="mt-8">Date: {documentData.details.date || "Date"}</p>
-                                            <p className="mt-4">Issued By: {documentData.details.issuer || "Issued By"}</p>
-                                        </div>
-                                    ) : template.id === "cover-letter" ? (
-                                        <div>
-                                            <div className="header mb-8 text-right">
-                                                <p>{documentData.header.name || "Your Name"}</p>
-                                                <p>{documentData.header.address || "Your Address"}</p>
-                                                <p>{documentData.header.date || "Date"}</p>
-                                            </div>
-                                            <div className="recipient mb-8">
-                                                <p>{documentData.recipient.recipientName || "Hiring Manager"}</p>
-                                                <p>{documentData.recipient.company || "Company"}</p>
-                                                <p>Re: {documentData.recipient.position || "Position"}</p>
-                                            </div>
-                                            <div className="body">
-                                                <p className="whitespace-pre-wrap mb-4">{documentData.body.opening || "Opening Paragraph"}</p>
-                                                <p className="whitespace-pre-wrap mb-4">{documentData.body.middle || "Middle Paragraph"}</p>
-                                                <p className="whitespace-pre-wrap mb-4">{documentData.body.closing || "Closing Paragraph"}</p>
-                                                <p className="mt-8">Sincerely,</p>
-                                                <p>{documentData.header.name || "Your Name"}</p>
-                                            </div>
-                                        </div>
-                                    ) : template.id === "agenda" ? (
-                                        <div>
-                                            <div className="header mb-10">
-                                                <h1>{documentData.meeting.title || "Meeting Title"}</h1>
-                                                <p className="text-lg text-gray-600">Date: {documentData.meeting.date || "Date"} | Time: {documentData.meeting.time || "Time"}</p>
-                                            </div>
-                                            <div className="section items">
-                                                <h2>Agenda Items</h2>
-                                                {documentData.items.map((item, idx) => (
-                                                    <div key={idx} className="item">
-                                                        <h3>{item.topic || "Topic"}</h3>
-                                                        <p className="font-medium text-gray-700">Duration: {item.duration || "Duration"} | Presenter: {item.presenter || "Presenter"}</p>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Categories */}
+                            <div className="mb-5">
+                                <div className="d-flex flex-wrap gap-2">
+                                    {CATEGORIES.map(cat => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => setCategory(cat)}
+                                            className={`btn btn-sm rounded-pill ${category === cat ? 'btn-primary text-white' : 'btn-light text-dark'}`}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* All Templates */}
+                            <div>
+                                <h3 className="h5 fw-semibold mb-3">All Templates</h3>
+                                <div className="row g-3">
+                                    {filtered.map(tpl => (
+                                        <div key={tpl.id} className="col-md-4">
+                                            <button
+                                                onClick={() => selectTemplate(tpl)}
+                                                className="card h-100 text-start bg-white border hover-shadow transition"
+                                            >
+                                                <div className="card-body d-flex flex-column">
+                                                    <div className="d-flex align-items-start mb-3">
+                                                        <span className="fs-3 me-2">{tpl.icon}</span>
+                                                        <div>
+                                                            <h5 className="card-title fw-semibold text-dark">{tpl.name}</h5>
+                                                            <p className="text-muted small">{tpl.category}</p>
+                                                        </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : template.id === "proposal" ? (
-                                        <div>
-                                            <div className="header mb-10 text-center">
-                                                <h1>{documentData.header.title || "Proposal Title"}</h1>
-                                                <p className="text-lg text-gray-600">For: {documentData.header.client || "Client Name"}</p>
-                                                <p className="text-md text-gray-500">Date: {documentData.header.date || "Date"}</p>
-                                            </div>
-                                            <div className="section executive">
-                                                <h2>Executive Summary</h2>
-                                                <p className="whitespace-pre-wrap">{documentData.executive.summary || "Summary"}</p>
-                                            </div>
-                                        </div>
-                                    ) : template.id === "receipt" ? (
-                                        <div>
-                                            <div className="header mb-10 flex justify-between">
-                                                <div>
-                                                    <h1>Receipt</h1>
+                                                    <p className="card-text text-muted">{tpl.desc}</p>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p><strong>Receipt #:</strong> {documentData.details.receiptNumber || "12345"}</p>
-                                                    <p><strong>Date:</strong> {documentData.details.date || "Date"}</p>
-                                                </div>
-                                            </div>
-                                            <div className="section details">
-                                                <h2>Payment Details</h2>
-                                                <p><strong>Received From:</strong> {documentData.details.payer || "Payer"}</p>
-                                                <p><strong>Amount:</strong> {documentData.details.amount || "Amount"}</p>
-                                                <p><strong>Payment For:</strong> {documentData.details.for || "Payment For"}</p>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                        </div>
+                    )}
+
+                    {/* EDITOR */}
+                    {stage === "edit" && (
+                        <div className="container px-4 py-5">
+                            <div className="row g-4">
+
+                                {/* FORM */}
+                                <div className="col-lg-6">
+                                    <div className="card shadow p-4">
+                                        {/* Top bar with back button */}
+                                        <div className="d-flex justify-content-between align-items-center mb-4">
+                                            <button
+                                                onClick={() => setStage("home")}
+                                                className="btn btn-link text-muted"
+                                            >
+                                                ← Back
+                                            </button>
+                                            <div className="d-flex align-items-center gap-3">
+                                                <span className="fs-3">{template.icon}</span>
+                                                <h2 className="h4 fw-bold mb-0">{template.name}</h2>
                                             </div>
                                         </div>
-                                    ) : (
-                                        template.sections.map(sec => (
-                                            <div key={sec.id} className="mb-5">
-                                                <h4 className="font-semibold text-sm uppercase text-gray-600 mb-2">
-                                                    {sec.title}
-                                                </h4>
+
+                                        {template.sections.map(sec => (
+                                            <div key={sec.id} className="mb-4">
+                                                <h3 className="h6 fw-semibold text-dark mb-3">{sec.title}</h3>
 
                                                 {(Array.isArray(documentData[sec.id])
                                                     ? documentData[sec.id]
                                                     : [documentData[sec.id]]
                                                 ).map((block, idx) => (
-                                                    <div key={idx} className="text-sm text-gray-800 mb-3">
-                                                        {Object.values(block).map((val, i) =>
-                                                            val ? (
-                                                                <div key={i} className="mb-1 whitespace-pre-wrap">
-                                                                    {val}
-                                                                </div>
-                                                            ) : null
+                                                    <div key={idx} className="border p-3 rounded bg-light mb-3">
+                                                        {sec.fields.map(f => (
+                                                            <div key={f.name} className="mb-3">
+                                                                <label className="form-label small fw-medium text-muted">
+                                                                    {f.label}
+                                                                </label>
+                                                                {f.type === "textarea" ? (
+                                                                    <textarea
+                                                                        className="form-control"
+                                                                        rows="3"
+                                                                        value={block[f.name]}
+                                                                        onChange={e =>
+                                                                            updateField(sec.id, idx, f.name, e.target.value)
+                                                                        }
+                                                                    />
+                                                                ) : (
+                                                                    <input
+                                                                        className="form-control"
+                                                                        value={block[f.name]}
+                                                                        onChange={e =>
+                                                                            updateField(sec.id, idx, f.name, e.target.value)
+                                                                        }
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                        {sec.repeatable && documentData[sec.id].length > 1 && (
+                                                            <button
+                                                                onClick={() => removeSection(sec, idx)}
+                                                                className="btn btn-link text-danger small"
+                                                            >
+                                                                Remove this {sec.title}
+                                                            </button>
                                                         )}
                                                     </div>
                                                 ))}
+
+                                                {sec.repeatable && (
+                                                    <button
+                                                        onClick={() => addSection(sec)}
+                                                        className="btn btn-link text-primary fw-medium small"
+                                                    >
+                                                        + Add {sec.title}
+                                                    </button>
+                                                )}
                                             </div>
-                                        ))
-                                    )}
+                                        ))}
+
+                                        {/* Bottom buttons: Download first, then Save */}
+                                        <div className="d-flex justify-content-end gap-3 pt-4 border-top">
+                                            <button
+                                                onClick={exportPDF}
+                                                className="btn btn-primary"
+                                            >
+                                                Download PDF
+                                            </button>
+                                            <button
+                                                onClick={saveDraft}
+                                                className="btn btn-outline-secondary"
+                                            >
+                                                💾 Save Draft
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {/* PREVIEW */}
+                                <div className="col-lg-6 position-sticky" style={{ top: '1rem' }}>
+                                    <div className="card shadow p-4">
+                                        <h3 className="h6 fw-semibold text-dark mb-4">Live Preview</h3>
+                                        <div className="preview-container border rounded p-4 bg-light">
+                                            <div className="preview-content">
+                                                {template.id === "resume" ? (
+                                                    <div>
+                                                        <div className="header mb-10">
+                                                            <h1>{documentData.header.name || "Your Name"}</h1>
+                                                            <p className="text-lg font-medium text-gray-600">{documentData.header.title || "Professional Title"}</p>
+                                                            <p className="text-sm text-gray-500">{documentData.header.email || "email@example.com"} | {documentData.header.phone || "(123) 456-7890"}</p>
+                                                        </div>
+                                                        <div className="section summary">
+                                                            <h2>Professional Summary</h2>
+                                                            <p className="whitespace-pre-wrap">{documentData.summary.summary || "Your summary here"}</p>
+                                                        </div>
+                                                        <div className="section experience">
+                                                            <h2>Experience</h2>
+                                                            {documentData.experience.map((exp, idx) => (
+                                                                <div key={idx} className="item">
+                                                                    <h3>{exp.role || "Role"}</h3>
+                                                                    <p className="font-medium text-gray-700">{exp.company || "Company"} | {exp.period || "Period"}</p>
+                                                                    <p className="whitespace-pre-wrap">{exp.description || "Description"}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <div className="section education">
+                                                            <h2>Education</h2>
+                                                            {documentData.education.map((edu, idx) => (
+                                                                <div key={idx} className="item">
+                                                                    <h3>{edu.degree || "Degree"}</h3>
+                                                                    <p className="font-medium text-gray-700">{edu.school || "School"} | {edu.year || "Year"}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ) : template.id === "cv" ? (
+                                                    <div>
+                                                        <div className="header text-center mb-10">
+                                                            <h1>{documentData.header.name || "Your Name"}</h1>
+                                                            <p className="text-lg text-gray-600 mb-1">{documentData.header.address || "Your Address"}</p>
+                                                            <p className="text-md text-gray-500">{documentData.header.email || "email@example.com"} | {documentData.header.phone || "(123) 456-7890"}</p>
+                                                        </div>
+                                                        <div className="experience">
+                                                            <h2>Professional Experience</h2>
+                                                            {documentData.experience.map((exp, idx) => (
+                                                                <div key={idx} className="item">
+                                                                    <h3>{exp.position || "Position"}</h3>
+                                                                    <p className="text-md text-gray-700 mb-2">{exp.organization || "Organization"} | {exp.period || "Period"}</p>
+                                                                    <p className="whitespace-pre-wrap">{exp.responsibilities || "Responsibilities"}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ) : template.id === "portfolio" ? (
+                                                    <div>
+                                                        <div className="header mb-10">
+                                                            <h1>{documentData.intro.name || "Your Name"}</h1>
+                                                            <p className="text-lg font-medium text-gray-600">{documentData.intro.tagline || "Tagline"}</p>
+                                                        </div>
+                                                        <div className="section bio">
+                                                            <h2>Bio</h2>
+                                                            <p className="whitespace-pre-wrap">{documentData.intro.bio || "Your bio here"}</p>
+                                                        </div>
+                                                        <div className="section projects">
+                                                            <h2>Projects</h2>
+                                                            {documentData.projects.map((proj, idx) => (
+                                                                <div key={idx} className="item">
+                                                                    <h3>{proj.title || "Project Title"}</h3>
+                                                                    <p className="whitespace-pre-wrap">{proj.description || "Description"}</p>
+                                                                    <p className="font-medium text-gray-700">{proj.tech || "Technologies Used"}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ) : template.id === "invoice" ? (
+                                                    <div>
+                                                        <div className="header mb-10 flex justify-between">
+                                                            <div>
+                                                                <h1>Invoice</h1>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p><strong>Invoice #:</strong> {documentData.header.invoiceNumber || "12345"}</p>
+                                                                <p><strong>Date:</strong> {documentData.header.date || "Date"}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="section client mb-8">
+                                                            <h2>Bill To</h2>
+                                                            <p>{documentData.client.clientName || "Client Name"}</p>
+                                                            <p>{documentData.client.clientAddress || "Address"}</p>
+                                                        </div>
+                                                        <div className="section items">
+                                                            <h2>Items</h2>
+                                                            <table className="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Item</th>
+                                                                        <th>Qty</th>
+                                                                        <th>Price</th>
+                                                                        <th>Total</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {documentData.items.map((item, idx) => (
+                                                                        <tr key={idx}>
+                                                                            <td>{item.item || "Item"}</td>
+                                                                            <td>{item.qty || "1"}</td>
+                                                                            <td>{item.price || "0.00"}</td>
+                                                                            <td>{(parseFloat(item.qty || 1) * parseFloat(item.price || 0)).toFixed(2)}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                ) : template.id === "formal-letter" ? (
+                                                    <div>
+                                                        <div className="sender mb-8 text-right">
+                                                            <p>{documentData.sender.name || "Your Name"}</p>
+                                                            <p>{documentData.sender.address || "Your Address"}</p>
+                                                            <p>{documentData.sender.date || "Date"}</p>
+                                                        </div>
+                                                        <div className="recipient mb-8">
+                                                            <p>{documentData.recipient.recipientName || "Recipient Name"}</p>
+                                                            <p>{documentData.recipient.company || "Company/Organization"}</p>
+                                                            <p>{documentData.recipient.address || "Address"}</p>
+                                                        </div>
+                                                        <div className="body">
+                                                            <p className="mb-4"><strong>Subject:</strong> {documentData.body.subject || "Subject"}</p>
+                                                            <p className="whitespace-pre-wrap mb-4">{documentData.body.body || "Message"}</p>
+                                                            <p className="mt-8">Sincerely,</p>
+                                                            <p>{documentData.sender.name || "Your Name"}</p>
+                                                        </div>
+                                                    </div>
+                                                ) : template.id === "certificate" ? (
+                                                    <div className="certificate">
+                                                        <h1>Certificate of Achievement</h1>
+                                                        <p className="text-lg mt-8">This certifies that</p>
+                                                        <h2 className="text-2xl font-bold">{documentData.details.recipient || "Recipient Name"}</h2>
+                                                        <p className="text-lg mt-4">has successfully completed</p>
+                                                        <h3 className="text-xl">{documentData.details.achievement || "Achievement/Course"}</h3>
+                                                        <p className="mt-8">Date: {documentData.details.date || "Date"}</p>
+                                                        <p className="mt-4">Issued By: {documentData.details.issuer || "Issued By"}</p>
+                                                    </div>
+                                                ) : template.id === "cover-letter" ? (
+                                                    <div>
+                                                        <div className="header mb-8 text-right">
+                                                            <p>{documentData.header.name || "Your Name"}</p>
+                                                            <p>{documentData.header.address || "Your Address"}</p>
+                                                            <p>{documentData.header.date || "Date"}</p>
+                                                        </div>
+                                                        <div className="recipient mb-8">
+                                                            <p>{documentData.recipient.recipientName || "Hiring Manager"}</p>
+                                                            <p>{documentData.recipient.company || "Company"}</p>
+                                                            <p>Re: {documentData.recipient.position || "Position"}</p>
+                                                        </div>
+                                                        <div className="body">
+                                                            <p className="whitespace-pre-wrap mb-4">{documentData.body.opening || "Opening Paragraph"}</p>
+                                                            <p className="whitespace-pre-wrap mb-4">{documentData.body.middle || "Middle Paragraph"}</p>
+                                                            <p className="whitespace-pre-wrap mb-4">{documentData.body.closing || "Closing Paragraph"}</p>
+                                                            <p className="mt-8">Sincerely,</p>
+                                                            <p>{documentData.header.name || "Your Name"}</p>
+                                                        </div>
+                                                    </div>
+                                                ) : template.id === "agenda" ? (
+                                                    <div>
+                                                        <div className="header mb-10">
+                                                            <h1>{documentData.meeting.title || "Meeting Title"}</h1>
+                                                            <p className="text-lg text-gray-600">Date: {documentData.meeting.date || "Date"} | Time: {documentData.meeting.time || "Time"}</p>
+                                                        </div>
+                                                        <div className="section items">
+                                                            <h2>Agenda Items</h2>
+                                                            {documentData.items.map((item, idx) => (
+                                                                <div key={idx} className="item">
+                                                                    <h3>{item.topic || "Topic"}</h3>
+                                                                    <p className="font-medium text-gray-700">Duration: {item.duration || "Duration"} | Presenter: {item.presenter || "Presenter"}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ) : template.id === "proposal" ? (
+                                                    <div>
+                                                        <div className="header mb-10 text-center">
+                                                            <h1>{documentData.header.title || "Proposal Title"}</h1>
+                                                            <p className="text-lg text-gray-600">For: {documentData.header.client || "Client Name"}</p>
+                                                            <p className="text-md text-gray-500">Date: {documentData.header.date || "Date"}</p>
+                                                        </div>
+                                                        <div className="section executive">
+                                                            <h2>Executive Summary</h2>
+                                                            <p className="whitespace-pre-wrap">{documentData.executive.summary || "Summary"}</p>
+                                                        </div>
+                                                    </div>
+                                                ) : template.id === "receipt" ? (
+                                                    <div>
+                                                        <div className="header mb-10 flex justify-between">
+                                                            <div>
+                                                                <h1>Receipt</h1>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p><strong>Receipt #:</strong> {documentData.details.receiptNumber || "12345"}</p>
+                                                                <p><strong>Date:</strong> {documentData.details.date || "Date"}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="section details">
+                                                            <h2>Payment Details</h2>
+                                                            <p><strong>Received From:</strong> {documentData.details.payer || "Payer"}</p>
+                                                            <p><strong>Amount:</strong> {documentData.details.amount || "Amount"}</p>
+                                                            <p><strong>Payment For:</strong> {documentData.details.for || "Payment For"}</p>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    template.sections.map(sec => (
+                                                        <div key={sec.id} className="mb-5">
+                                                            <h4 className="font-semibold text-sm uppercase text-gray-600 mb-2">
+                                                                {sec.title}
+                                                            </h4>
+
+                                                            {(Array.isArray(documentData[sec.id])
+                                                                ? documentData[sec.id]
+                                                                : [documentData[sec.id]]
+                                                            ).map((block, idx) => (
+                                                                <div key={idx} className="text-sm text-gray-800 mb-3">
+                                                                    {Object.values(block).map((val, i) =>
+                                                                        val ? (
+                                                                            <div key={i} className="mb-1 whitespace-pre-wrap">
+                                                                                {val}
+                                                                            </div>
+                                                                        ) : null
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
+                    )}
 
-                    </div>
                 </div>
-            )}
+            );
+        }
 
-        </div>
-    );
-}
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-</script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
